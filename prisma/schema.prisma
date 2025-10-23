@@ -1,0 +1,94 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        BigInt   @id @default(autoincrement())
+  name      String   @db.VarChar(50)
+  address   Address  @relation(fields: [addressId], references: [id])
+  addressId BigInt
+  phone     String   @db.VarChar(20)
+  type      UserType
+  password  String   @db.VarChar(255)
+  createdAt DateTime @default(DateTime.now())
+  updatedAt DateTime @updatedAt
+
+  clientOrders  Order[] @relation("ClientOrders")
+  createdOrders Order[] @relation("CreatedOrders")
+}
+
+model Address {
+  id        BigInt   @id @default(autoincrement())
+  street    String   @db.VarChar(255)
+  number    String   @db.VarChar(20)
+  district  String   @db.VarChar(20)
+  city      String   @db.VarChar(20)
+  state     String   @db.VarChar(20)
+  zipCode   String   @db.VarChar(9)
+  createdAt DateTime @default(DateTime.now())
+  updatedAt DateTime @updatedAt
+}
+
+model Order {
+  id              BigInt        @id @default(autoincrement())
+  client          User          @relation("ClientOrders", fields: [clientId], references: [id])
+  clientId        BigInt
+  createdBy       User          @relation("CreatedOrders", fields: [createdByUserId], references: [id])
+  createdByUserId BigInt
+  paymentMethod   PaymentMethod
+  status          OrderStatus   @default(PENDING)
+  items           OrderItem[]
+  createdAt       DateTime      @default(DateTime.now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model OrderItem {
+  id       BigInt @id @default(autoincrement())
+  order    Order  @relation(fields: [orderId], references: [id])
+  orderId  BigInt
+  item     Item   @relation(fields: [itemId], references: [id])
+  itemId   BigInt
+  quantity Int
+}
+
+model Item {
+  id          BigInt      @id @default(autoincrement())
+  description String      @db.VarChar(500)
+  unitPrice   Float
+  category    Category    @relation(fields: [categoryId], references: [id])
+  categoryId  BigInt
+  orderItems  OrderItem[]
+  createdAt   DateTime    @default(DateTime.now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Category {
+  id          BigInt   @id @default(autoincrement())
+  description String   @db.VarChar(500)
+  createdAt   DateTime @default(DateTime.now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum UserType {
+  CLIENT
+  ADMIN
+}
+
+enum PaymentMethod {
+  CASH
+  DEBIT
+  CREDIT
+  PIX
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  DELIVERED
+  CANCELED
+}
