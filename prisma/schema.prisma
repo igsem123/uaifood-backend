@@ -1,21 +1,23 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 model User {
   id        BigInt   @id @default(autoincrement())
+  email     String   @unique @db.VarChar(100)
   name      String   @db.VarChar(50)
   address   Address  @relation(fields: [addressId], references: [id])
   addressId BigInt
   phone     String   @db.VarChar(20)
   type      UserType
   password  String   @db.VarChar(255)
-  createdAt DateTime @default(DateTime.now())
+  createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   clientOrders  Order[] @relation("ClientOrders")
@@ -30,8 +32,9 @@ model Address {
   city      String   @db.VarChar(20)
   state     String   @db.VarChar(20)
   zipCode   String   @db.VarChar(9)
-  createdAt DateTime @default(DateTime.now())
+  createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  User      User[]
 }
 
 model Order {
@@ -43,7 +46,7 @@ model Order {
   paymentMethod   PaymentMethod
   status          OrderStatus   @default(PENDING)
   items           OrderItem[]
-  createdAt       DateTime      @default(DateTime.now())
+  createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 }
 
@@ -63,15 +66,16 @@ model Item {
   category    Category    @relation(fields: [categoryId], references: [id])
   categoryId  BigInt
   orderItems  OrderItem[]
-  createdAt   DateTime    @default(DateTime.now())
+  createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 }
 
 model Category {
   id          BigInt   @id @default(autoincrement())
   description String   @db.VarChar(500)
-  createdAt   DateTime @default(DateTime.now())
+  createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  Item        Item[]
 }
 
 enum UserType {
