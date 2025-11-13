@@ -98,4 +98,25 @@ export class UserController {
                 .json({error: getReasonPhrase(ReasonPhrases.INTERNAL_SERVER_ERROR)});
         }
     }
+
+    getUserWithAddresses = async (req: Request, res: Response) => {
+        try {
+            const id = Number(req.params.id);
+            const user = await this.userService.findUserWithAddresses(id);
+
+            if (!user) {
+                return res
+                    .status(StatusCodes.NOT_FOUND)
+                    .json({ error: 'User not found' });
+            }
+
+            res
+                .status(StatusCodes.OK)
+                .json({ user });
+        } catch (error) {
+            res
+                .status(StatusCodes.INTERNAL_SERVER_ERROR)
+                .json({ error: getReasonPhrase(ReasonPhrases.INTERNAL_SERVER_ERROR) });
+        }
+    }
 }
