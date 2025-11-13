@@ -1,6 +1,7 @@
 import userRepository from "../repositories/UserRepository";
 import {User} from "@prisma/client";
 import { injectable } from "tsyringe";
+import { UserScheme, UserUpdateScheme } from "../zodSchemes/UserScheme";
 
 @injectable()
 export class UserService {
@@ -9,6 +10,9 @@ export class UserService {
         if (existingUser) {
             throw new Error('Email already in use');
         }
+
+        UserScheme.parse(data);
+
         return await userRepository.createUser(data);
     }
 
@@ -21,6 +25,9 @@ export class UserService {
         if (!user) {
             throw new Error('User not found');
         }
+
+        UserUpdateScheme.parse(data);
+
         return await userRepository.updateUser(id, data);
     }
 
