@@ -19,5 +19,11 @@ export const AddressRepository = {
             },
             data,
         });
+    },
+
+    async deleteAddress(id: number): Promise<Address> {
+        return prisma.address.delete({
+            where: { id: id},
+        });
     }
 }

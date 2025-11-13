@@ -36,7 +36,7 @@ const UserRepository = {
     async getUserWithAddresses(id: number): Promise<User | null> {
         return prisma.user.findUnique({
             where: { id },
-            include: { address: true },
+            include: { addresses: true },
         });
     }
 }

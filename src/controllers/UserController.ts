@@ -9,7 +9,7 @@ import {UserType} from "@prisma/client";
 export class UserController {
     constructor(@inject(UserService) private userService: UserService) {}
 
-    registerUser = async (req: Request, res: Response) => {
+    createUser = async (req: Request, res: Response) => {
         try {
             const user = {...req.body, type: UserType.CLIENT};
             const newUser = await this.userService.registerUser(user);
