@@ -6,7 +6,7 @@ const router = Router();
 const addressController = container.resolve(AddressController);
 
 router.post('/', addressController.createAddress);
-router.put('/', addressController.updateAddress);
+router.patch('/', addressController.updateAddress);
 router.delete('/:id', addressController.deleteAddress);
 
 export default router;

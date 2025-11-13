@@ -4,6 +4,8 @@ import cors from "cors";
 import {errorHandler} from "./middlewares/errorHandler";
 import userRoutes from "./routes/UserRoutes";
 import addressRoutes from "./routes/AddressRoutes";
+import swaggerUi from "swagger-ui-express";
+import {swaggerSpec} from "./config/swagger";
 
 const app = express();
 
@@ -12,6 +14,7 @@ app.use(express.json());
 
 app.use(errorHandler);
 
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/api/users', userRoutes);
 app.use('/api/addresses', addressRoutes);
 
