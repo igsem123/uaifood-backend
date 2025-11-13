@@ -38,4 +38,8 @@ export class UserService {
         }
         return await userRepository.deleteUser(id);
     }
+
+    findUserWithAddresses = async (id: number): Promise<User | null> => {
+        return await userRepository.getUserWithAddresses(id);
+    }
 }

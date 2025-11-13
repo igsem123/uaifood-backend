@@ -9,16 +9,15 @@ datasource db {
 }
 
 model User {
-  id        BigInt   @id @default(autoincrement())
-  email     String   @unique @db.VarChar(100)
-  name      String   @db.VarChar(50)
-  address   Address  @relation(fields: [addressId], references: [id])
-  addressId BigInt
-  phone     String   @db.VarChar(20)
+  id        BigInt    @id @default(autoincrement())
+  email     String    @unique @db.VarChar(100)
+  name      String    @db.VarChar(50)
+  addresses Address[] @relation("UserAddress")
+  phone     String    @db.VarChar(20)
   type      UserType
-  password  String   @db.VarChar(255)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  password  String    @db.VarChar(255)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   clientOrders  Order[] @relation("ClientOrders")
   createdOrders Order[] @relation("CreatedOrders")
@@ -34,7 +33,10 @@ model Address {
   zipCode   String   @db.VarChar(9)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  User      User[]
+  user      User     @relation("UserAddress", fields: [userId], references: [id])
+  userId    BigInt
+
+  @@unique([userId, street, number, zipCode])
 }
 
 model Order {
@@ -75,7 +77,7 @@ model Category {
   description String   @db.VarChar(500)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  Item        Item[]
+  item        Item[]
 }
 
 enum UserType {
