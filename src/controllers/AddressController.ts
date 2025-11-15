@@ -1,6 +1,6 @@
 import {Request, Response} from "express";
 import {inject, injectable} from "tsyringe";
-import {AddressService} from "../services/AddressService";
+import {AddressService} from "../services/addressService";
 import {getReasonPhrase, StatusCodes, ReasonPhrases, getStatusCode} from "http-status-codes";
 
 @injectable()

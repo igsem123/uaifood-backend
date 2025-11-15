@@ -1,9 +1,9 @@
 import {container} from "tsyringe";
-import {UserService} from "../services/UserService";
+import {UserService} from "../services/userService";
 import {UserController} from "../controllers/UserController";
-import {CategoryService} from "../services/CategoryService";
+import {CategoryService} from "../services/categoryService";
 import {CategoryController} from "../controllers/CategoryController";
-import {AddressService} from "../services/AddressService";
+import {AddressService} from "../services/addressService";
 import {AddressController} from "../controllers/AddressController";
 
 // User

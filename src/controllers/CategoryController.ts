@@ -1,4 +1,4 @@
-import {CategoryService} from "../services/CategoryService";
+import {CategoryService} from "../services/categoryService";
 import {Request, Response} from "express";
 import {injectable, inject} from "tsyringe";
 import {getReasonPhrase, ReasonPhrases, getStatusCode, StatusCodes} from "http-status-codes";

@@ -2,7 +2,7 @@ import {inject, injectable} from "tsyringe";
 import {AddressRepository} from "../repositories/AddressRepository";
 import {Address} from "@prisma/client";
 import {CreateAddressScheme, UpdateAddressScheme} from "../zodSchemes/AddressScheme";
-import {UserService} from "./UserService";
+import {UserService} from "./userService";
 
 @injectable()
 export class AddressService {
