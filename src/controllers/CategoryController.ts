@@ -7,6 +7,38 @@ import {getReasonPhrase, ReasonPhrases, getStatusCode, StatusCodes} from "http-s
 export class CategoryController {
     constructor(@inject(CategoryService) private categoryService: CategoryService) {}
 
+    /**
+     * @swagger
+     * tags:
+     *   name: Categories
+     *   description: Endpoints relacionados às categorias
+     */
+
+    /**
+     * @swagger
+     * /categories:
+     *   post:
+     *     summary: Cria uma nova categoria
+     *     tags: [Categories]
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               name:
+     *                 type: string
+     *               description:
+     *                 type: string
+     *     responses:
+     *       201:
+     *         description: Categoria criada com sucesso
+     *       400:
+     *         description: Erro de validação
+     *       500:
+     *         description: Erro interno
+     */
     createCategory = async (req: Request, res: Response) => {
         try {
             const newCategory = await this.categoryService.createCategory(req.body);
@@ -25,6 +57,18 @@ export class CategoryController {
         }
     }
 
+    /**
+     * @swagger
+     * /categories:
+     *   get:
+     *     summary: Obtém todas as categorias
+     *     tags: [Categories]
+     *     responses:
+     *       200:
+     *         description: Lista de categorias obtida com sucesso
+     *       500:
+     *         description: Erro interno
+     */
     getAllCategories = async (req: Request, res: Response) => {
         try {
             const categories = await this.categoryService.getAllCategories();
@@ -38,6 +82,38 @@ export class CategoryController {
         }
     }
 
+    /**
+     * @swagger
+     * /categories/{id}:
+     *   patch:
+     *     summary: Atualiza uma categoria existente
+     *     tags: [Categories]
+     *     parameters:
+     *       - in: path
+     *         name: id
+     *         required: true
+     *         schema:
+     *           type: integer
+     *         description: ID da categoria
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               name:
+     *                 type: string
+     *               description:
+     *                 type: string
+     *     responses:
+     *       200:
+     *         description: Categoria atualizada com sucesso
+     *       400:
+     *         description: Erro de validação
+     *       500:
+     *         description: Erro interno
+     */
     updateCategory = async (req: Request, res: Response) => {
         try {
             const id = Number(req.params.id);
@@ -57,6 +133,27 @@ export class CategoryController {
         }
     }
 
+    /**
+     * @swagger
+     * /categories/{id}:
+     *   delete:
+     *     summary: Deleta uma categoria existente
+     *     tags: [Categories]
+     *     parameters:
+     *       - in: path
+     *         name: id
+     *         required: true
+     *         schema:
+     *           type: integer
+     *         description: ID da categoria
+     *     responses:
+     *       200:
+     *         description: Categoria deletada com sucesso
+     *       400:
+     *         description: Erro de validação
+     *       500:
+     *         description: Erro interno
+     */
     deleteCategory = async (req: Request, res: Response) => {
         try {
             const id = Number(req.params.id);
