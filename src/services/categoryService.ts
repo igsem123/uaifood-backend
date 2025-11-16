@@ -1,7 +1,7 @@
-import {CategoryRepository} from "../repositories/CategoryRepository";
+import {CategoryRepository} from "../repositories/categoryRepository";
 import {injectable} from "tsyringe";
 import { Category } from "@prisma/client";
-import {CategoryScheme, CategoryUpdateScheme} from "../zodSchemes/CategoryScheme";
+import {CategoryScheme, CategoryUpdateScheme} from "../zodSchemes/categoryScheme";
 
 @injectable()
 export class CategoryService {

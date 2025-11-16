@@ -1,7 +1,8 @@
-import userRepository from "../repositories/UserRepository";
+import userRepository from "../repositories/userRepository";
 import {User} from "@prisma/client";
-import { injectable } from "tsyringe";
-import { UserScheme, UserUpdateScheme } from "../zodSchemes/UserScheme";
+import {injectable} from "tsyringe";
+import {UserScheme, UserUpdateScheme} from "../zodSchemes/userScheme";
+import bcrypt from "bcryptjs";
 
 @injectable()
 export class UserService {
@@ -12,6 +13,7 @@ export class UserService {
         }
 
         UserScheme.parse(data);
+        data.password = await bcrypt.hash(data.password, 12);
 
         return await userRepository.createUser(data);
     }
@@ -41,5 +43,9 @@ export class UserService {
 
     findUserWithAddresses = async (id: number): Promise<User | null> => {
         return await userRepository.getUserWithAddresses(id);
+    }
+
+    findUserByEmail = async (email: string): Promise<User | null> => {
+        return await userRepository.getUserByEmail(email);
     }
 }

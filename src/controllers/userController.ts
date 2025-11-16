@@ -1,5 +1,5 @@
 import {inject, injectable} from "tsyringe";
-import {UserService} from "../services/UserService";
+import {UserService} from "../services/userService";
 import {Request, Response} from "express";
 import { z } from "zod";
 import { ReasonPhrases, StatusCodes, getReasonPhrase, getStatusCode } from "http-status-codes";
