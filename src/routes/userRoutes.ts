@@ -1,5 +1,5 @@
 import {container} from "tsyringe";
-import {UserController} from "../controllers/UserController";
+import {UserController} from "../controllers/userController";
 import {Router} from "express";
 
 const userController = container.resolve(UserController);

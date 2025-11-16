@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { StatusCodes, getReasonPhrase, ReasonPhrases } from 'http-status-codes';
 
 export interface AppError extends Error {
     status?: number;
@@ -11,7 +12,7 @@ export const errorHandler = (
     next: NextFunction
 ) => {
     console.error(err);
-    res.status(err.status || 500).json({
-        message: err.message || 'Internal Server Error',
+    res.status(err.status || StatusCodes.INTERNAL_SERVER_ERROR).json({
+        message: err.message || getReasonPhrase(ReasonPhrases.INTERNAL_SERVER_ERROR),
     });
 };

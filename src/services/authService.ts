@@ -4,14 +4,15 @@ import bcrypt from "bcryptjs";
 import {generateRefreshToken, generateAccessToken} from "../auth/jwt";
 import {prisma} from "../config/prisma";
 import dotenv from "dotenv";
-import ms from "ms";
+import ms, {StringValue} from "ms";
 import jwt from "jsonwebtoken";
 
 dotenv.config();
 
 @injectable()
 export class AuthService {
-    constructor(@inject(UserService) private userService: UserService) {}
+    constructor(@inject(UserService) private userService: UserService) {
+    }
 
     login = async (email: string, password: string): Promise<any> => {
         const user = await this.userService.findUserByEmail(email);
@@ -31,7 +32,7 @@ export class AuthService {
             data: {
                 token: refreshToken,
                 userId: user.id,
-                expiresAt: new Date(Date.now() + ms(process.env.REFRESH_EXPIRES_IN as any)),
+                expiresAt: new Date(Date.now() + ms(process.env.REFRESH_EXPIRES_IN as StringValue)),
             }
         });
 
@@ -43,38 +44,54 @@ export class AuthService {
 
     refresh = async (token: string): Promise<any> => {
         const storedToken = await prisma.refreshToken.findUnique({
-            where: { token },
-            include: { user: true },
+            where: {token},
+            include: {user: true},
         });
 
         if (!storedToken || storedToken.expiresAt < new Date()) {
             throw new Error('Invalid or expired refresh token');
         }
 
+        if (!process.env.REFRESH_SECRET) {
+            throw new Error('Missing refresh secret');
+        }
+
+        let payload: any;
+
+        try {
+            payload = jwt.verify(token, process.env.REFRESH_SECRET);
+        } catch {
+            throw new Error('Invalid refresh token');
+        }
+
+        if (payload.id !== storedToken.userId) {
+            throw new Error('Invalid refresh token');
+        }
+
         const accessToken = generateAccessToken(storedToken.user);
         const newRefreshToken = generateRefreshToken(storedToken.user);
+        const expiresAt = new Date(Date.now() + (ms(process.env.REFRESH_EXPIRES_IN as StringValue)));
 
-        await prisma.refreshToken.delete({
-            where: { token },
-        });
-
-        await prisma.refreshToken.create({
-            data: {
-                token: newRefreshToken,
-                userId: storedToken.userId,
-                expiresAt: new Date(Date.now() + ms(process.env.REFRESH_EXPIRES_IN as any)),
-            }
-        });
+        await prisma.$transaction([
+            prisma.refreshToken.delete({where: {token}}),
+            prisma.refreshToken.create({
+                data: {
+                    token: newRefreshToken,
+                    userId: storedToken.userId,
+                    expiresAt,
+                },
+            }),
+        ]);
 
         return {
             accessToken,
-            refreshToken: newRefreshToken,
+            newRefreshToken,
         };
     }
 
     logout = async (token: string): Promise<void> => {
         await prisma.refreshToken.delete({
-            where: { token },
+            where: {token},
         });
     }
 }

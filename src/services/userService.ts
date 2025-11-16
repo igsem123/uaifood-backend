@@ -1,7 +1,7 @@
-import userRepository from "../repositories/UserRepository";
+import userRepository from "../repositories/userRepository";
 import {User} from "@prisma/client";
 import {injectable} from "tsyringe";
-import {UserScheme, UserUpdateScheme} from "../zodSchemes/UserScheme";
+import {UserScheme, UserUpdateScheme} from "../zodSchemes/userScheme";
 import bcrypt from "bcryptjs";
 
 @injectable()

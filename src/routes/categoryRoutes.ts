@@ -1,6 +1,6 @@
 import {Router} from "express";
 import {container} from "tsyringe";
-import {CategoryController} from "../controllers/CategoryController";
+import {CategoryController} from "../controllers/categoryController";
 
 const router = Router();
 const categoryController = container.resolve(CategoryController);
