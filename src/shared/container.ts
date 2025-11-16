@@ -7,6 +7,12 @@ import {AddressService} from "../services/addressService";
 import {AddressController} from "../controllers/addressController";
 import {AuthService} from "../services/authService";
 import {AuthController} from "../controllers/authController";
+import {ItemService} from "../services/itemService";
+import {ItemController} from "../controllers/itemController";
+
+// Item
+container.registerSingleton<ItemService>(ItemService, ItemService);
+container.registerSingleton<ItemController>(ItemController, ItemController);
 
 // User
 container.registerSingleton<UserService>(UserService, UserService);

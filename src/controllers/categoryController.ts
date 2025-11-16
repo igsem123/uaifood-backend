@@ -2,6 +2,7 @@ import {CategoryService} from "../services/categoryService";
 import {Request, Response} from "express";
 import {injectable, inject} from "tsyringe";
 import {getReasonPhrase, ReasonPhrases, getStatusCode, StatusCodes} from "http-status-codes";
+import {ZodError} from "zod";
 
 @injectable()
 export class CategoryController {
@@ -50,6 +51,11 @@ export class CategoryController {
                 return res
                     .status(StatusCodes.BAD_REQUEST)
                     .json({ message: error.message });
+            }
+            if (error instanceof ZodError) {
+                return res
+                    .status(StatusCodes.BAD_REQUEST)
+                    .json({ errors: error.issues });
             }
             return res
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)
@@ -126,6 +132,11 @@ export class CategoryController {
                 return res
                     .status(StatusCodes.BAD_REQUEST)
                     .json({ message: error.message });
+            }
+            if (error instanceof ZodError) {
+                return res
+                    .status(StatusCodes.BAD_REQUEST)
+                    .json({ errors: error.issues });
             }
             return res
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)

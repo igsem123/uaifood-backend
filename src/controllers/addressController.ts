@@ -2,6 +2,7 @@ import {Request, Response} from "express";
 import {inject, injectable} from "tsyringe";
 import {AddressService} from "../services/addressService";
 import {getReasonPhrase, StatusCodes, ReasonPhrases, getStatusCode} from "http-status-codes";
+import {ZodError} from "zod";
 
 @injectable()
 export class AddressController {
@@ -50,6 +51,16 @@ export class AddressController {
                 .status(StatusCodes.CREATED)
                 .json({ message: getReasonPhrase(ReasonPhrases.CREATED), address });
         } catch (error) {
+            if (error instanceof Error) {
+                return res
+                    .status(StatusCodes.BAD_REQUEST)
+                    .json({ message: error.message });
+            }
+            if (error instanceof ZodError) {
+                return res
+                    .status(StatusCodes.BAD_REQUEST)
+                    .json({ errors: error.issues });
+            }
             res
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)
                 .json({error: getReasonPhrase(ReasonPhrases.INTERNAL_SERVER_ERROR)});
@@ -94,6 +105,16 @@ export class AddressController {
                 .status(StatusCodes.OK)
                 .json({ message: getReasonPhrase(ReasonPhrases.OK), address });
         } catch (error) {
+            if (error instanceof Error) {
+                return res
+                    .status(StatusCodes.BAD_REQUEST)
+                    .json({ message: error.message });
+            }
+            if (error instanceof ZodError) {
+                return res
+                    .status(StatusCodes.BAD_REQUEST)
+                    .json({ errors: error.issues });
+            }
             res
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)
                 .json({error: getReasonPhrase(ReasonPhrases.INTERNAL_SERVER_ERROR)});
