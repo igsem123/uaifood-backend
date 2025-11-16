@@ -61,11 +61,11 @@ export class AuthService {
         try {
             payload = jwt.verify(token, process.env.REFRESH_SECRET);
         } catch {
-            throw new Error('Invalid refresh token');
+            throw new Error('Invalid or corrupted refresh token');
         }
 
         if (payload.id !== storedToken.userId) {
-            throw new Error('Invalid refresh token');
+            throw new Error('Token user mismatch');
         }
 
         const accessToken = generateAccessToken(storedToken.user);

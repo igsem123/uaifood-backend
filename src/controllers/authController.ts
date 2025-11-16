@@ -1,9 +1,10 @@
-import { Request, Response } from "express";
+import {Request, Response} from "express";
 import {injectable, inject} from "tsyringe";
 import {AuthService} from "../services/authService";
 import {StatusCodes, getReasonPhrase} from "http-status-codes";
 import dotenv from "dotenv";
 import ms, {StringValue} from "ms";
+
 dotenv.config();
 
 @injectable()
@@ -43,7 +44,7 @@ export class AuthController {
      */
     login = async (req: Request, res: Response) => {
         try {
-            const { email, password } = req.body;
+            const {email, password} = req.body;
             const {
                 accessToken,
                 refreshToken
@@ -59,11 +60,11 @@ export class AuthController {
 
             res
                 .status(StatusCodes.OK)
-                .json({ message: getReasonPhrase(StatusCodes.OK), accessToken });
+                .json({message: getReasonPhrase(StatusCodes.OK), accessToken});
         } catch (error) {
             res
                 .status(StatusCodes.UNAUTHORIZED)
-                .json({ error: getReasonPhrase(StatusCodes.UNAUTHORIZED) });
+                .json({error: getReasonPhrase(StatusCodes.UNAUTHORIZED)});
         }
     }
 
@@ -85,10 +86,10 @@ export class AuthController {
             if (!refreshToken) {
                 return res
                     .status(StatusCodes.UNAUTHORIZED)
-                    .json({ error: getReasonPhrase(StatusCodes.UNAUTHORIZED) });
+                    .json({error: getReasonPhrase(StatusCodes.UNAUTHORIZED)});
             }
 
-            const { accessToken, newRefreshToken } = await this.authService.refresh(refreshToken);
+            const {accessToken, newRefreshToken} = await this.authService.refresh(refreshToken);
 
             res.cookie('refreshToken', newRefreshToken, {
                 httpOnly: true,
@@ -100,11 +101,16 @@ export class AuthController {
 
             res
                 .status(StatusCodes.OK)
-                .json({ message: getReasonPhrase(StatusCodes.OK), accessToken });
+                .json({message: getReasonPhrase(StatusCodes.OK), accessToken});
         } catch (error) {
+            if (error instanceof Error) {
+                return res
+                    .status(StatusCodes.UNAUTHORIZED)
+                    .json({error: error.message});
+            }
             res
                 .status(StatusCodes.UNAUTHORIZED)
-                .json({ error: getReasonPhrase(StatusCodes.UNAUTHORIZED) });
+                .json({error: getReasonPhrase(StatusCodes.UNAUTHORIZED)});
         }
     }
 
@@ -126,7 +132,7 @@ export class AuthController {
             if (!refreshToken) {
                 return res
                     .status(StatusCodes.BAD_REQUEST)
-                    .json({ error: getReasonPhrase(StatusCodes.BAD_REQUEST) });
+                    .json({error: getReasonPhrase(StatusCodes.BAD_REQUEST)});
             }
 
             await this.authService.logout(refreshToken);
@@ -139,11 +145,11 @@ export class AuthController {
 
             res
                 .status(StatusCodes.OK)
-                .json({ message: getReasonPhrase(StatusCodes.OK) });
+                .json({message: getReasonPhrase(StatusCodes.OK)});
         } catch (error) {
             res
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)
-                .json({ error: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR) });
+                .json({error: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)});
         }
     }
 }
