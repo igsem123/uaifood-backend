@@ -39,11 +39,11 @@ export class OrderController {
      *                       type: integer
      *                     quantity:
      *                       type: integer
-     *                paymentMethod:
-     *                  type: string
-     *                  enum: [CREDIT_CARD, DEBIT_CARD, PAYPAL, CASH]
-     *                totalAmount:
-     *                  type: number
+     *               paymentMethod:
+     *                 type: string
+     *                 enum: [CREDIT_CARD, DEBIT_CARD, PAYPAL, CASH]
+     *               totalAmount:
+     *                 type: number
      *     responses:
      *       201:
      *         description: Pedido criado com sucesso
@@ -84,12 +84,12 @@ export class OrderController {
      *         name: page
      *         schema:
      *           type: integer
-     *         description: Número da página (padrão: 1)
+     *         description: "Número da página (padrão: 1)"
      *       - in: query
      *         name: pageSize
      *         schema:
      *           type: integer
-     *         description: Número de itens por página (padrão: 10)
+     *         description: "Número de itens por página (padrão: 10)"
      *     responses:
      *       200:
      *         description: Lista de pedidos recuperada com sucesso
@@ -127,12 +127,12 @@ export class OrderController {
      *         name: page
      *         schema:
      *           type: integer
-     *         description: Número da página (padrão: 1)
+     *         description: "Número da página (padrão: 1)"
      *       - in: query
      *         name: pageSize
      *         schema:
      *           type: integer
-     *         description: Número de itens por página (padrão: 10)
+     *         description: "Número de itens por página (padrão: 10)"
      *     responses:
      *       200:
      *         description: Lista de pedidos do cliente recuperada com sucesso

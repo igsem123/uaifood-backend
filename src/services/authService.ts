@@ -6,6 +6,7 @@ import {prisma} from "../config/prisma";
 import dotenv from "dotenv";
 import ms, {StringValue} from "ms";
 import jwt from "jsonwebtoken";
+import {User} from "@prisma/client";
 
 dotenv.config();
 
@@ -36,7 +37,9 @@ export class AuthService {
             }
         });
 
+        const { password: _password, ...userWithoutPassword } = user;
         return {
+            user: userWithoutPassword,
             accessToken,
             refreshToken,
         };
@@ -68,6 +71,7 @@ export class AuthService {
             throw new Error('Token user mismatch');
         }
 
+        const { password, ...user } = storedToken.user;
         const accessToken = generateAccessToken(storedToken.user);
         const newRefreshToken = generateRefreshToken(storedToken.user);
         const expiresAt = new Date(Date.now() + (ms(process.env.REFRESH_EXPIRES_IN as StringValue)));
@@ -84,6 +88,7 @@ export class AuthService {
         ]);
 
         return {
+            user,
             accessToken,
             newRefreshToken,
         };
