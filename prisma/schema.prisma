@@ -14,7 +14,7 @@ model User {
   name      String    @db.VarChar(50)
   addresses Address[] @relation("UserAddress")
   phone     String    @db.VarChar(20)
-  type      UserType
+  type      UserType  @default(CLIENT)
   password  String    @db.VarChar(255)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -59,24 +59,29 @@ model Order {
   paymentMethod   PaymentMethod
   status          OrderStatus   @default(PENDING)
   items           OrderItem[]
+  totalAmount     Decimal       @db.Decimal(10, 2)
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 }
 
 model OrderItem {
-  id       BigInt @id @default(autoincrement())
-  order    Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  orderId  BigInt
-  item     Item   @relation(fields: [itemId], references: [id])
-  itemId   BigInt
-  quantity Int
+  id        BigInt  @id @default(autoincrement())
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId   BigInt
+  item      Item    @relation(fields: [itemId], references: [id])
+  itemId    BigInt
+  quantity  Int
+  unitPrice Decimal @db.Decimal(10, 2)
+  subtotal  Decimal @db.Decimal(10, 2)
 }
 
 model Item {
   id          BigInt      @id @default(autoincrement())
   name        String      @unique @db.VarChar(100)
   description String      @db.VarChar(500)
-  unitPrice   Float
+  unitPrice   Decimal     @db.Decimal(10, 2)
+  imageUrl    String?     @db.VarChar(255)
+  available   Boolean     @default(true)
   category    Category    @relation(fields: [categoryId], references: [id])
   categoryId  BigInt
   orderItems  OrderItem[]
