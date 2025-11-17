@@ -11,6 +11,7 @@ import cookieParser from "cookie-parser";
 import authRoutes from "./routes/authRoutes";
 import passport from "./auth/passport";
 import itemRoutes from "./routes/itemRoutes";
+import orderRoutes from "./routes/orderRoutes";
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/addresses', addressRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/items', itemRoutes);
+app.use('/api/orders', orderRoutes);
 
 app.use(errorHandler);
 
