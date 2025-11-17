@@ -49,7 +49,7 @@ export class AddressController {
             const address = await this.addressService.createAddress(req.body);
             res
                 .status(StatusCodes.CREATED)
-                .json({ message: getReasonPhrase(ReasonPhrases.CREATED), address });
+                .json({ message: getReasonPhrase(StatusCodes.CREATED), address });
         } catch (error) {
             if (error instanceof Error) {
                 return res
@@ -63,7 +63,7 @@ export class AddressController {
             }
             res
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)
-                .json({error: getReasonPhrase(ReasonPhrases.INTERNAL_SERVER_ERROR)});
+                .json({message: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)});
         }
     }
 
@@ -103,7 +103,7 @@ export class AddressController {
             const address = await this.addressService.updateAddress(req.body);
             res
                 .status(StatusCodes.OK)
-                .json({ message: getReasonPhrase(ReasonPhrases.OK), address });
+                .json({ message: getReasonPhrase(StatusCodes.OK), address });
         } catch (error) {
             if (error instanceof Error) {
                 return res
@@ -117,7 +117,7 @@ export class AddressController {
             }
             res
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)
-                .json({error: getReasonPhrase(ReasonPhrases.INTERNAL_SERVER_ERROR)});
+                .json({message: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)});
         }
     }
 
@@ -146,11 +146,11 @@ export class AddressController {
             const address = await this.addressService.deleteAddress(id);
             res
                 .status(StatusCodes.OK)
-                .json({ message: getReasonPhrase(ReasonPhrases.OK), address });
+                .json({ message: getReasonPhrase(StatusCodes.OK), address });
         } catch (error) {
             res
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)
-                .json({error: getReasonPhrase(ReasonPhrases.INTERNAL_SERVER_ERROR)});
+                .json({message: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)});
         }
     }
 }

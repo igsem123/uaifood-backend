@@ -9,8 +9,7 @@ dotenv.config();
 
 @injectable()
 export class AuthController {
-    constructor(@inject(AuthService) private authService: AuthService) {
-    }
+    constructor(@inject(AuthService) private authService: AuthService,) {}
 
     /**
      * @swagger
@@ -46,6 +45,7 @@ export class AuthController {
         try {
             const {email, password} = req.body;
             const {
+                user,
                 accessToken,
                 refreshToken
             } = await this.authService.login(email, password);
@@ -60,11 +60,11 @@ export class AuthController {
 
             res
                 .status(StatusCodes.OK)
-                .json({message: getReasonPhrase(StatusCodes.OK), accessToken});
+                .json({message: getReasonPhrase(StatusCodes.OK), user, accessToken});
         } catch (error) {
             res
                 .status(StatusCodes.UNAUTHORIZED)
-                .json({error: getReasonPhrase(StatusCodes.UNAUTHORIZED)});
+                .json({message: getReasonPhrase(StatusCodes.UNAUTHORIZED)});
         }
     }
 
@@ -89,7 +89,7 @@ export class AuthController {
                     .json({error: getReasonPhrase(StatusCodes.UNAUTHORIZED)});
             }
 
-            const {accessToken, newRefreshToken} = await this.authService.refresh(refreshToken);
+            const {user, accessToken, newRefreshToken} = await this.authService.refresh(refreshToken);
 
             res.cookie('refreshToken', newRefreshToken, {
                 httpOnly: true,
@@ -101,16 +101,16 @@ export class AuthController {
 
             res
                 .status(StatusCodes.OK)
-                .json({message: getReasonPhrase(StatusCodes.OK), accessToken});
+                .json({message: getReasonPhrase(StatusCodes.OK), user, accessToken});
         } catch (error) {
             if (error instanceof Error) {
                 return res
                     .status(StatusCodes.UNAUTHORIZED)
-                    .json({error: error.message});
+                    .json({message: error.message});
             }
             res
                 .status(StatusCodes.UNAUTHORIZED)
-                .json({error: getReasonPhrase(StatusCodes.UNAUTHORIZED)});
+                .json({message: getReasonPhrase(StatusCodes.UNAUTHORIZED)});
         }
     }
 
@@ -126,7 +126,7 @@ export class AuthController {
      *       400:
      *         description: Requisição inválida
      */
-    async logout(req: Request, res: Response) {
+    logout = async (req: Request, res: Response)=> {
         try {
             const refreshToken = req.cookies.refreshToken;
             if (!refreshToken) {
@@ -149,7 +149,33 @@ export class AuthController {
         } catch (error) {
             res
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)
-                .json({error: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)});
+                .json({message: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)});
         }
     }
+
+    /**
+     * @swagger
+     * /auth/profile:
+     *   get:
+     *     summary: Obtém o perfil do usuário autenticado
+     *     tags: [Auth]
+     *     responses:
+     *       200:
+     *         description: Perfil obtido com sucesso
+     *       500:
+     *         description: Erro interno do servidor
+     */
+    getProfile = async (req: Request, res: Response) => {
+        try {
+            const user = req.user;
+
+            res
+                .status(StatusCodes.OK)
+                .json({message: getReasonPhrase(StatusCodes.OK), user});
+        } catch (error) {
+            res
+                .status(StatusCodes.INTERNAL_SERVER_ERROR)
+                .json({message: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)});
+        }
+    };
 }

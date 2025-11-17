@@ -49,9 +49,11 @@ export class UserController {
             const newUser = await this.userService.registerUser(user);
 
             res
-                .status(StatusCodes.OK)
-                .json({ message: getReasonPhrase(ReasonPhrases.CREATED), newUser });
+                .status(StatusCodes.CREATED)
+                .json({ message: getReasonPhrase(StatusCodes.CREATED), newUser });
         } catch (error) {
+            console.log(error);
+
             if(error instanceof z.ZodError) {
                 return res
                     .status(StatusCodes.BAD_REQUEST)
@@ -59,11 +61,11 @@ export class UserController {
             } else if (error instanceof Error) {
                 return res
                     .status(StatusCodes.BAD_REQUEST)
-                    .json({ error: error.message });
+                    .json({ message: error.message });
             }
             res
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)
-                .json({ error: getReasonPhrase(ReasonPhrases.INTERNAL_SERVER_ERROR) });
+                .json({ message: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR) });
         }
     }
 
@@ -105,7 +107,7 @@ export class UserController {
         } catch (error) {
             res
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)
-                .json({ error: getReasonPhrase(ReasonPhrases.INTERNAL_SERVER_ERROR) });
+                .json({ message: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR) });
         }
     }
 
@@ -153,7 +155,7 @@ export class UserController {
 
             res
                 .status(StatusCodes.OK)
-                .json({ message: getReasonPhrase(ReasonPhrases.OK), updatedUser });
+                .json({ message: getReasonPhrase(StatusCodes.OK), updatedUser });
         } catch (error) {
             if(error instanceof z.ZodError) {
                 return res
@@ -162,11 +164,11 @@ export class UserController {
             } else if (error instanceof Error) {
                 return res
                     .status(StatusCodes.BAD_REQUEST)
-                    .json({ error: error.message });
+                    .json({ message: error.message });
             }
             res
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)
-                .json({ error: getReasonPhrase(ReasonPhrases.INTERNAL_SERVER_ERROR) });
+                .json({ message: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR) });
         }
     }
 
@@ -198,16 +200,16 @@ export class UserController {
 
             res
                 .status(StatusCodes.OK)
-                .json({message: getReasonPhrase(ReasonPhrases.OK), deletedUser});
+                .json({message: getReasonPhrase(StatusCodes.OK), deletedUser});
         } catch (error) {
             if (error instanceof Error) {
                 return res
                     .status(StatusCodes.BAD_REQUEST)
-                    .json({error: error.message});
+                    .json({message: error.message});
             }
             res
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)
-                .json({error: getReasonPhrase(ReasonPhrases.INTERNAL_SERVER_ERROR)});
+                .json({message: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)});
         }
     }
 
@@ -249,7 +251,7 @@ export class UserController {
         } catch (error) {
             res
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)
-                .json({ error: getReasonPhrase(ReasonPhrases.INTERNAL_SERVER_ERROR) });
+                .json({ message: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR) });
         }
     }
 }
