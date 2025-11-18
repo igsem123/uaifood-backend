@@ -37,11 +37,7 @@ const UserRepository = {
     async getUserWithRelations(id: bigint, relation: string[]): Promise<User | null> {
         return prisma.user.findUnique({
             where: { id },
-            include: {
-                addresses: relation.includes('addresses'),
-                clientOrders: relation.includes('clientOrders'),
-                createdOrders: relation.includes('createdOrders'),
-            },
+            include: Object.fromEntries(relation.map(rel => [rel, true])),
         });
     }
 }

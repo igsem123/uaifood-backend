@@ -16,13 +16,13 @@ export class AddressService {
         return await AddressRepository.createAddress(data);
     }
 
-    updateAddress = async (userId: bigint, data: Omit<Address, 'id' | 'createdAt' | 'updatedAt'>): Promise<Address> => {
+    updateAddress = async (userId: bigint, addressId: bigint, data: Omit<Address, 'id' | 'createdAt' | 'updatedAt'>): Promise<Address> => {
         const user = await this.userService.findUserById(userId);
         if (!user) {
             throw new Error('User not found');
         }
         UpdateAddressScheme.parse(data);
-        return await AddressRepository.updateAddress(data);
+        return await AddressRepository.updateAddress(userId, addressId, data);
     }
 
     deleteAddress = async (id: number): Promise<Address> => {

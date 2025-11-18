@@ -248,7 +248,12 @@ export class UserController {
     getUserWithRelations = async (req: Request, res: Response) => {
         try {
             const id = BigInt(req.params.id);
-            const relations: string[] = req.body.relations;
+            const include = req.query.include;
+
+            const relations: string[] = typeof include === 'string'
+                ? include.split(',').map(r => r.trim())
+                : [];
+
             const user = await this.userService.findUserWithRelations(id, relations);
 
             if (!user) {
