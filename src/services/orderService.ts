@@ -10,6 +10,7 @@ export class OrderService {
     createOrder = async (data: Omit<Order, 'id' | 'createdAt' | 'updatedAt'> & { items: Omit<OrderItem, 'id' | 'orderId' | 'createdAt' | 'updatedAt'>[] }): Promise<Order> => {
         CreateOrderScheme.parse(data);
         const {items, ...orderData} = data;
+
         const order = await orderRepository.create(orderData);
         for (const item of items) {
             await this.addItem(order.id, item);
@@ -39,7 +40,7 @@ export class OrderService {
 
         return orderItemRepository.create({
                 orderId,
-                itemId: data.itemId,
+                itemId: BigInt(data.itemId),
                 quantity: data.quantity,
                 unitPrice,
                 subtotal,

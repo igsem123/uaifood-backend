@@ -1,7 +1,7 @@
 import {inject, injectable} from "tsyringe";
 import {OrderService} from "../services/orderService";
 import {Request, Response} from "express";
-import {getReasonPhrase, ReasonPhrases, getStatusCode, StatusCodes} from "http-status-codes";
+import {getReasonPhrase, StatusCodes} from "http-status-codes";
 import {ZodError} from "zod";
 
 @injectable()
@@ -55,7 +55,7 @@ export class OrderController {
             const order = await this.orderService.createOrder(req.body);
             res
                 .status(StatusCodes.CREATED)
-                .json({ message: getReasonPhrase(ReasonPhrases.CREATED), order });
+                .json({ message: getReasonPhrase(StatusCodes.CREATED), order });
         } catch (error) {
             if (error instanceof Error) {
                 return res
