@@ -8,15 +8,17 @@ const UserRepository = {
         });
     },
 
-    async getUserById(id: number): Promise<User | null> {
+    async getUserById(id: number, relation?: string): Promise<User | null> {
         return prisma.user.findUnique({
             where: { id },
+            include: relation ? { [relation]: true } : undefined,
         });
     },
 
-    async getUserByEmail(email: string): Promise<User | null> {
+    async getUserByEmail(email: string, relation?: string): Promise<User | null> {
         return prisma.user.findUnique({
             where: { email },
+            include: relation ? { [relation]: true } : undefined,
         });
     },
 

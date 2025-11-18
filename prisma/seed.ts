@@ -1,4 +1,14 @@
-import {PrismaClient, Prisma, OrderStatus, UserType, PaymentMethod, Category, Item, User} from "@prisma/client";
+import {
+    PrismaClient,
+    Prisma,
+    OrderStatus,
+    UserType,
+    PaymentMethod,
+    Category,
+    Item,
+    User,
+    Address
+} from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -26,6 +36,42 @@ async function main() {
             where: { email: userData.email },
             update: {},
             create: userData,
+        });
+    }
+
+    const addresses: Omit<Address, 'id' | 'createdAt' | 'updatedAt'>[] = [
+        {
+            street: '123 Main St',
+            number: '100',
+            district: 'Downtown',
+            city: 'Anytown',
+            state: 'Anystate',
+            zipCode: '12345',
+            userId: BigInt(1),
+        },
+        {
+            street: '456 Oak Ave',
+            number: '200',
+            district: 'Anytown',
+            city: 'Othertown',
+            state: 'Otherstate',
+            zipCode: '67890',
+            userId: BigInt(2),
+        },
+    ];
+
+    for (const addressData of addresses) {
+        await prisma.address.upsert({
+            where: {
+                userId_street_number_zipCode: {
+                    userId: addressData.userId,
+                    street: addressData.street,
+                    number: addressData.number,
+                    zipCode: addressData.zipCode,
+                },
+            },
+            update: {},
+            create: addressData,
         });
     }
 

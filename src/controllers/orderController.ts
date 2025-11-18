@@ -148,6 +148,7 @@ export class OrderController {
                 .status(StatusCodes.OK)
                 .json(paginatedOrders);
         } catch (error) {
+            console.log(error);
             return res
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)
                 .json({ message: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR) });

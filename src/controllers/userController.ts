@@ -50,7 +50,7 @@ export class UserController {
 
             res
                 .status(StatusCodes.CREATED)
-                .json({ message: getReasonPhrase(StatusCodes.CREATED), newUser });
+                .json({ message: getReasonPhrase(StatusCodes.CREATED), user: newUser });
         } catch (error) {
             console.log(error);
 
@@ -93,7 +93,8 @@ export class UserController {
     getUserById = async (req: Request, res: Response) => {
         try {
             const id = Number(req.params.id);
-            const user = await this.userService.findUserById(id);
+            const relation = req.body.relation;
+            const user = await this.userService.findUserById(id, relation);
 
             if (!user) {
                 return res
@@ -155,7 +156,7 @@ export class UserController {
 
             res
                 .status(StatusCodes.OK)
-                .json({ message: getReasonPhrase(StatusCodes.OK), updatedUser });
+                .json({ message: getReasonPhrase(StatusCodes.OK), user: updatedUser });
         } catch (error) {
             if(error instanceof z.ZodError) {
                 return res
@@ -200,7 +201,7 @@ export class UserController {
 
             res
                 .status(StatusCodes.OK)
-                .json({message: getReasonPhrase(StatusCodes.OK), deletedUser});
+                .json({message: getReasonPhrase(StatusCodes.OK), user: deletedUser});
         } catch (error) {
             if (error instanceof Error) {
                 return res

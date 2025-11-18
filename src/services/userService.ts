@@ -18,8 +18,8 @@ export class UserService {
         return await userRepository.createUser(data);
     }
 
-    findUserById = async (id: number): Promise<User | null> => {
-        return await userRepository.getUserById(id);
+    findUserById = async (id: number, relation?: string): Promise<User | null> => {
+        return await userRepository.getUserById(id, relation);
     }
 
     updateUser = async (id: number, data: Partial<Omit<User, "id">>): Promise<User> => {
@@ -45,7 +45,7 @@ export class UserService {
         return await userRepository.getUserWithAddresses(id);
     }
 
-    findUserByEmail = async (email: string): Promise<User | null> => {
-        return await userRepository.getUserByEmail(email);
+    findUserByEmail = async (email: string, relation?: string): Promise<User | null> => {
+        return await userRepository.getUserByEmail(email, relation);
     }
 }

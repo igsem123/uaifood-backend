@@ -21,10 +21,11 @@ export const OrderRepository = {
     },
 
     async findByClientIdPaginated(clientId: number, page: number, pageSize: number): Promise<PaginatedResult<Order>> {
-        return paginate(prisma.order, {
-            page,
-            pageSize
-        }, { where: { clientId } });
+        return paginate(
+            prisma.order,
+            { page, pageSize},
+            { clientId }
+        );
     },
 
     async update(id: number, data: Partial<Omit<Order, 'id'>>): Promise<Order> {
