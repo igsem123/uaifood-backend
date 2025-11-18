@@ -3,6 +3,7 @@ import {OrderStatus, PaymentMethod} from "@prisma/client";
 
 export const CreateOrderScheme = zod.object({
     clientId: zod.number().int().positive(),
+    addressId: zod.number().int().positive(),
     items: zod.array(
         zod.object({
             itemId: zod.number().int().positive(),
@@ -13,5 +14,6 @@ export const CreateOrderScheme = zod.object({
 });
 
 export const OrderUpdateScheme = zod.object({
-    status: zod.enum(OrderStatus).optional(),
+    confirmedByUserId: zod.number().int().positive(),
+    status: zod.enum(OrderStatus),
 });
