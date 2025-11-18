@@ -10,6 +10,6 @@ router.post('/', userController.createUser);
 router.get('/:id', passport.authenticate("jwt", { session: false }), userController.getUserById);
 router.patch('/:id', passport.authenticate("jwt", { session: false }), userController.updateUser);
 router.delete('/:id', passport.authenticate("jwt", { session: false }), userController.deleteUser);
-router.get('/:id/addresses', passport.authenticate("jwt", { session: false }), userController.getUserWithAddresses);
+router.get('/:id/relations', passport.authenticate("jwt", { session: false }), userController.getUserWithRelations);
 
 export default router;

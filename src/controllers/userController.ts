@@ -50,7 +50,7 @@ export class UserController {
 
             res
                 .status(StatusCodes.CREATED)
-                .json({ message: getReasonPhrase(StatusCodes.CREATED), newUser });
+                .json({ message: getReasonPhrase(StatusCodes.CREATED), user: newUser });
         } catch (error) {
             console.log(error);
 
@@ -92,7 +92,7 @@ export class UserController {
      */
     getUserById = async (req: Request, res: Response) => {
         try {
-            const id = Number(req.params.id);
+            const id = BigInt(req.params.id);
             const user = await this.userService.findUserById(id);
 
             if (!user) {
@@ -149,13 +149,13 @@ export class UserController {
      */
     updateUser = async (req: Request, res: Response) => {
         try {
-            const id = Number(req.params.id);
+            const id = BigInt(req.params.id);
             const data = {...req.body};
             const updatedUser = await this.userService.updateUser(id, data);
 
             res
                 .status(StatusCodes.OK)
-                .json({ message: getReasonPhrase(StatusCodes.OK), updatedUser });
+                .json({ message: getReasonPhrase(StatusCodes.OK), user: updatedUser });
         } catch (error) {
             if(error instanceof z.ZodError) {
                 return res
@@ -195,12 +195,12 @@ export class UserController {
      */
     deleteUser = async (req: Request, res: Response) => {
         try {
-            const id = Number(req.params.id);
+            const id = BigInt(req.params.id);
             const deletedUser = await this.userService.deleteUser(id);
 
             res
                 .status(StatusCodes.OK)
-                .json({message: getReasonPhrase(StatusCodes.OK), deletedUser});
+                .json({message: getReasonPhrase(StatusCodes.OK), user: deletedUser});
         } catch (error) {
             if (error instanceof Error) {
                 return res
@@ -215,9 +215,9 @@ export class UserController {
 
     /**
      * @swagger
-     * /users/{id}/addresses:
-     *  get:
-     *   summary: Obtém um usuário com seus endereços pelo ID
+     * /users/{id}/relations:
+     *  post:
+     *   summary: Obtém um usuário pelo ID com relações especificadas
      *   tags: [Users]
      *   parameters:
      *     - in: path
@@ -226,6 +226,17 @@ export class UserController {
      *       schema:
      *         type: integer
      *       description: ID do usuário
+     *   requestBody:
+     *     required: true
+     *     content:
+     *       application/json:
+     *         schema:
+     *           type: object
+     *           properties:
+     *             relations:
+     *               type: array
+     *               items:
+     *                 type: string
      *   responses:
      *     200:
      *       description: Usuário obtido com sucesso
@@ -234,10 +245,16 @@ export class UserController {
      *     500:
      *       description: Erro interno do servidor
      */
-    getUserWithAddresses = async (req: Request, res: Response) => {
+    getUserWithRelations = async (req: Request, res: Response) => {
         try {
-            const id = Number(req.params.id);
-            const user = await this.userService.findUserWithAddresses(id);
+            const id = BigInt(req.params.id);
+            const include = req.query.include;
+
+            const relations: string[] = typeof include === 'string'
+                ? include.split(',').map(r => r.trim())
+                : [];
+
+            const user = await this.userService.findUserWithRelations(id, relations);
 
             if (!user) {
                 return res

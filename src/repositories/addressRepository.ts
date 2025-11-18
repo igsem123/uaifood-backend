@@ -8,16 +8,13 @@ export const AddressRepository = {
         });
     },
 
-    async updateAddress(data: Omit<Address, 'id' | 'createdAt' | 'updatedAt'>): Promise<Address> {
+    async updateAddress(userId: bigint, addressId: bigint, data: Omit<Address, 'id' | 'createdAt' | 'updatedAt'>): Promise<Address> {
         return prisma.address.update({
-            where: { userId_street_number_zipCode: {
-                    userId: data.userId,
-                    street: data.street,
-                    number: data.number,
-                    zipCode: data.zipCode
-                }
-            },
-            data,
+            where: { id: addressId },
+            data: {
+                ...data,
+                userId: userId,
+            }
         });
     },
 

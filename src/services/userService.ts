@@ -18,11 +18,11 @@ export class UserService {
         return await userRepository.createUser(data);
     }
 
-    findUserById = async (id: number): Promise<User | null> => {
+    findUserById = async (id: bigint): Promise<User | null> => {
         return await userRepository.getUserById(id);
     }
 
-    updateUser = async (id: number, data: Partial<Omit<User, "id">>): Promise<User> => {
+    updateUser = async (id: bigint, data: Partial<Omit<User, "id">>): Promise<User> => {
         const user = await userRepository.getUserById(id);
         if (!user) {
             throw new Error('User not found');
@@ -33,7 +33,7 @@ export class UserService {
         return await userRepository.updateUser(id, data);
     }
 
-    deleteUser = async (id: number): Promise<User> => {
+    deleteUser = async (id: bigint): Promise<User> => {
         const user = await userRepository.getUserById(id);
         if (!user) {
             throw new Error('User not found');
@@ -41,11 +41,11 @@ export class UserService {
         return await userRepository.deleteUser(id);
     }
 
-    findUserWithAddresses = async (id: number): Promise<User | null> => {
-        return await userRepository.getUserWithAddresses(id);
+    findUserWithRelations = async (id: bigint, relations: string[]): Promise<User | null> => {
+        return await userRepository.getUserWithRelations(id, relations);
     }
 
-    findUserByEmail = async (email: string): Promise<User | null> => {
-        return await userRepository.getUserByEmail(email);
+    findUserByEmail = async (email: string, relation?: string): Promise<User | null> => {
+        return await userRepository.getUserByEmail(email, relation);
     }
 }

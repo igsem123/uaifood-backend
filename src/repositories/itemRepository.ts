@@ -15,7 +15,9 @@ export const itemRepository = {
     },
 
     async findAll(): Promise<Item[]> {
-        return prisma.item.findMany();
+        return prisma.item.findMany({
+                orderBy: { name: 'asc' }
+            });
     },
 
     async update(id: number, data: Omit<Item, 'id' | 'createdAt' | 'updatedAt'>): Promise<Item> {

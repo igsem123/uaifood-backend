@@ -8,35 +8,36 @@ const UserRepository = {
         });
     },
 
-    async getUserById(id: number): Promise<User | null> {
+    async getUserById(id: bigint): Promise<User | null> {
         return prisma.user.findUnique({
-            where: { id },
+            where: { id }
         });
     },
 
-    async getUserByEmail(email: string): Promise<User | null> {
+    async getUserByEmail(email: string, relation?: string): Promise<User | null> {
         return prisma.user.findUnique({
             where: { email },
+            include: relation ? { [relation]: true } : undefined,
         });
     },
 
-    async updateUser(id: number, data: Partial<Omit<User, "id">>): Promise<User> {
+    async updateUser(id: bigint, data: Partial<Omit<User, "id">>): Promise<User> {
         return prisma.user.update({
             where: { id },
             data,
         });
     },
 
-    async deleteUser(id: number): Promise<User> {
+    async deleteUser(id: bigint): Promise<User> {
         return prisma.user.delete({
             where: { id },
         });
     },
 
-    async getUserWithAddresses(id: number): Promise<User | null> {
+    async getUserWithRelations(id: bigint, relation: string[]): Promise<User | null> {
         return prisma.user.findUnique({
             where: { id },
-            include: { addresses: true },
+            include: Object.fromEntries(relation.map(rel => [rel, true])),
         });
     }
 }

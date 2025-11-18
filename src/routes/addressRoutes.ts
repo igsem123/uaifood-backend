@@ -7,7 +7,7 @@ const router = Router();
 const addressController = container.resolve(AddressController);
 
 router.post('/', passport.authenticate("jwt", { session: false }), addressController.createAddress);
-router.patch('/', passport.authenticate("jwt", { session: false }), addressController.updateAddress);
+router.patch('/:id', passport.authenticate("jwt", { session: false }), addressController.updateAddress);
 router.delete('/:id', passport.authenticate("jwt", { session: false }), addressController.deleteAddress);
 
 export default router;

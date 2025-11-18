@@ -45,7 +45,7 @@ export class CategoryController {
             const newCategory = await this.categoryService.createCategory(req.body);
             res
                 .status(StatusCodes.CREATED)
-                .json({ message: getReasonPhrase(StatusCodes.CREATED), newCategory });
+                .json({ message: getReasonPhrase(StatusCodes.CREATED), category: newCategory });
         } catch (error) {
             if (error instanceof Error) {
                 return res
@@ -80,7 +80,7 @@ export class CategoryController {
             const categories = await this.categoryService.getAllCategories();
             res
                 .status(StatusCodes.OK)
-                .json(categories);
+                .json({ message: getReasonPhrase(StatusCodes.OK), categories });
         } catch (error) {
             return res
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)
@@ -126,7 +126,7 @@ export class CategoryController {
             const updatedCategory = await this.categoryService.updateCategory(id, req.body);
             res
                 .status(StatusCodes.OK)
-                .json({ message: getReasonPhrase(StatusCodes.OK), updatedCategory });
+                .json({ message: getReasonPhrase(StatusCodes.OK), category: updatedCategory });
         } catch (error) {
             if (error instanceof Error) {
                 return res
@@ -171,7 +171,7 @@ export class CategoryController {
             const deletedCategory = await this.categoryService.deleteCategory(id);
             res
                 .status(StatusCodes.OK)
-                .json({message: getReasonPhrase(StatusCodes.OK), deletedCategory});
+                .json({message: getReasonPhrase(StatusCodes.OK), category: deletedCategory});
         } catch (error) {
             if (error instanceof Error) {
                 return res

@@ -8,7 +8,9 @@ export const CategoryRepository = {
         });
     },
     async findAll(): Promise<Category[]> {
-        return prisma.category.findMany();
+        return prisma.category.findMany({
+            orderBy: { name: 'asc' }
+        });
     },
     async findById(id: number): Promise<Category | null> {
         return prisma.category.findUnique({

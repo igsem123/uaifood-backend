@@ -46,11 +46,22 @@ export class AddressController {
      */
     createAddress = async (req: Request, res: Response) => {
         try {
-            const address = await this.addressService.createAddress(req.body);
+            const userId = req.user?.id;
+
+            if (!userId) {
+                return res
+                    .status(StatusCodes.UNAUTHORIZED)
+                    .json({ message: ReasonPhrases.UNAUTHORIZED });
+            }
+
+            const addressData = { ...req.body, userId: userId };
+
+            const address = await this.addressService.createAddress(addressData);
             res
                 .status(StatusCodes.CREATED)
                 .json({ message: getReasonPhrase(StatusCodes.CREATED), address });
         } catch (error) {
+            console.log(error);
             if (error instanceof Error) {
                 return res
                     .status(StatusCodes.BAD_REQUEST)
@@ -69,7 +80,7 @@ export class AddressController {
 
     /**
      * @swagger
-     * /addresses:
+     * /addresses/{id}:
      *   patch:
      *     summary: Atualiza um endereço existente
      *     tags: [Addresses]
@@ -80,8 +91,6 @@ export class AddressController {
      *           schema:
      *             type: object
      *             properties:
-     *               id:
-     *                 type: integer
      *               street:
      *                 type: string
      *               city:
@@ -100,7 +109,17 @@ export class AddressController {
      */
     updateAddress = async (req: Request, res: Response) => {
         try {
-            const address = await this.addressService.updateAddress(req.body);
+            const userId = req.user?.id;
+            const addressId = BigInt(req.params.id);
+
+            if (!userId) {
+                return res
+                    .status(StatusCodes.UNAUTHORIZED)
+                    .json({ message: ReasonPhrases.UNAUTHORIZED });
+            }
+
+            const address = await this.addressService.updateAddress(userId, addressId, req.body);
+
             res
                 .status(StatusCodes.OK)
                 .json({ message: getReasonPhrase(StatusCodes.OK), address });
