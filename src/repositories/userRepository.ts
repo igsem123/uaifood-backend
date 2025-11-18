@@ -8,10 +8,9 @@ const UserRepository = {
         });
     },
 
-    async getUserById(id: number, relation?: string): Promise<User | null> {
+    async getUserById(id: bigint): Promise<User | null> {
         return prisma.user.findUnique({
-            where: { id },
-            include: relation ? { [relation]: true } : undefined,
+            where: { id }
         });
     },
 
@@ -22,23 +21,27 @@ const UserRepository = {
         });
     },
 
-    async updateUser(id: number, data: Partial<Omit<User, "id">>): Promise<User> {
+    async updateUser(id: bigint, data: Partial<Omit<User, "id">>): Promise<User> {
         return prisma.user.update({
             where: { id },
             data,
         });
     },
 
-    async deleteUser(id: number): Promise<User> {
+    async deleteUser(id: bigint): Promise<User> {
         return prisma.user.delete({
             where: { id },
         });
     },
 
-    async getUserWithAddresses(id: number): Promise<User | null> {
+    async getUserWithRelations(id: bigint, relation: string[]): Promise<User | null> {
         return prisma.user.findUnique({
             where: { id },
-            include: { addresses: true },
+            include: {
+                addresses: relation.includes('addresses'),
+                clientOrders: relation.includes('clientOrders'),
+                createdOrders: relation.includes('createdOrders'),
+            },
         });
     }
 }

@@ -92,9 +92,8 @@ export class UserController {
      */
     getUserById = async (req: Request, res: Response) => {
         try {
-            const id = Number(req.params.id);
-            const relation = req.body.relation;
-            const user = await this.userService.findUserById(id, relation);
+            const id = BigInt(req.params.id);
+            const user = await this.userService.findUserById(id);
 
             if (!user) {
                 return res
@@ -150,7 +149,7 @@ export class UserController {
      */
     updateUser = async (req: Request, res: Response) => {
         try {
-            const id = Number(req.params.id);
+            const id = BigInt(req.params.id);
             const data = {...req.body};
             const updatedUser = await this.userService.updateUser(id, data);
 
@@ -196,7 +195,7 @@ export class UserController {
      */
     deleteUser = async (req: Request, res: Response) => {
         try {
-            const id = Number(req.params.id);
+            const id = BigInt(req.params.id);
             const deletedUser = await this.userService.deleteUser(id);
 
             res
@@ -216,9 +215,9 @@ export class UserController {
 
     /**
      * @swagger
-     * /users/{id}/addresses:
-     *  get:
-     *   summary: Obtém um usuário com seus endereços pelo ID
+     * /users/{id}/relations:
+     *  post:
+     *   summary: Obtém um usuário pelo ID com relações especificadas
      *   tags: [Users]
      *   parameters:
      *     - in: path
@@ -227,6 +226,17 @@ export class UserController {
      *       schema:
      *         type: integer
      *       description: ID do usuário
+     *   requestBody:
+     *     required: true
+     *     content:
+     *       application/json:
+     *         schema:
+     *           type: object
+     *           properties:
+     *             relations:
+     *               type: array
+     *               items:
+     *                 type: string
      *   responses:
      *     200:
      *       description: Usuário obtido com sucesso
@@ -235,10 +245,11 @@ export class UserController {
      *     500:
      *       description: Erro interno do servidor
      */
-    getUserWithAddresses = async (req: Request, res: Response) => {
+    getUserWithRelations = async (req: Request, res: Response) => {
         try {
-            const id = Number(req.params.id);
-            const user = await this.userService.findUserWithAddresses(id);
+            const id = BigInt(req.params.id);
+            const relations: string[] = req.body.relations;
+            const user = await this.userService.findUserWithRelations(id, relations);
 
             if (!user) {
                 return res

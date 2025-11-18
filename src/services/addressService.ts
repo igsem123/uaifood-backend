@@ -8,7 +8,7 @@ import {UserService} from "./userService";
 export class AddressService {
     constructor(@inject(UserService) private userService: UserService) {}
     createAddress = async (data: Omit<Address, 'id' | 'createdAt' | 'updatedAt'>): Promise<Address> => {
-        const user = await this.userService.findUserById(Number(data.userId));
+        const user = await this.userService.findUserById(data.userId);
         if (!user) {
             throw new Error('User not found');
         }
@@ -16,8 +16,8 @@ export class AddressService {
         return await AddressRepository.createAddress(data);
     }
 
-    updateAddress = async (data: Omit<Address, 'id' | 'createdAt' | 'updatedAt'>): Promise<Address> => {
-        const user = await this.userService.findUserById(Number(data.userId));
+    updateAddress = async (userId: bigint, data: Omit<Address, 'id' | 'createdAt' | 'updatedAt'>): Promise<Address> => {
+        const user = await this.userService.findUserById(userId);
         if (!user) {
             throw new Error('User not found');
         }

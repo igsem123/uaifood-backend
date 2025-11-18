@@ -80,8 +80,6 @@ export class AddressController {
      *           schema:
      *             type: object
      *             properties:
-     *               id:
-     *                 type: integer
      *               street:
      *                 type: string
      *               city:
@@ -100,7 +98,15 @@ export class AddressController {
      */
     updateAddress = async (req: Request, res: Response) => {
         try {
-            const address = await this.addressService.updateAddress(req.body);
+            const { user } = (req as any).user;
+
+            if (!user) {
+                return res
+                    .status(StatusCodes.UNAUTHORIZED)
+                    .json({ message: ReasonPhrases.UNAUTHORIZED });
+            }
+
+            const address = await this.addressService.updateAddress(user.id, req.body);
             res
                 .status(StatusCodes.OK)
                 .json({ message: getReasonPhrase(StatusCodes.OK), address });
