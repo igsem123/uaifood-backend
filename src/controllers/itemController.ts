@@ -52,9 +52,10 @@ export class ItemController {
      *           schema:
      *             $ref: '#/components/schemas/Item'
      *           example:
-     *             name: "Ração Premium"
-     *             description: "Ração de alta qualidade para gado leiteiro"
-     *             unitPrice: 49.90
+     *             name: "Água Mineral"
+     *             description: "Água mineral natural sem gás"
+     *             unitPrice: 4.99
+     *             categoryId: 2
      *     responses:
      *       201:
      *         description: Item criado com sucesso

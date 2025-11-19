@@ -98,7 +98,7 @@ export class UserController {
      *     summary: Obtém um usuário pelo ID
      *     tags: [Users]
      *     security:
-     *       - BearerAuth: []
+     *       - bearerAuth: []
      *     parameters:
      *       - in: path
      *         name: id
@@ -141,7 +141,7 @@ export class UserController {
      *     summary: Atualiza o usuário autenticado
      *     tags: [Users]
      *     security:
-     *       - BearerAuth: []
+     *       - bearerAuth: []
      *     requestBody:
      *       required: true
      *       content:
@@ -202,7 +202,7 @@ export class UserController {
      *     summary: Deleta o usuário autenticado
      *     tags: [Users]
      *     security:
-     *       - BearerAuth: []
+     *       - bearerAuth: []
      *     responses:
      *       200:
      *         description: Usuário deletado com sucesso
@@ -245,7 +245,7 @@ export class UserController {
      *     summary: Obtém um usuário com relações especificadas
      *     tags: [Users]
      *     security:
-     *       - BearerAuth: []
+     *       - bearerAuth: []
      *     parameters:
      *       - in: path
      *         name: id
