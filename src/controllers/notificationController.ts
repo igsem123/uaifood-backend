@@ -11,7 +11,27 @@ export class NotificationController {
      * @swagger
      * tags:
      *   name: Notifications
-     *   description: Endpoints relacionados às notificações
+     *   description: Endpoints relacionados às notificações de um usuário autenticado
+     */
+
+    /**
+     * @swagger
+     * components:
+     *   schemas:
+     *     Notification:
+     *       type: object
+     *       properties:
+     *         id:
+     *           type: integer
+     *         title:
+     *           type: string
+     *         message:
+     *           type: string
+     *         read:
+     *           type: boolean
+     *         createdAt:
+     *           type: string
+     *           format: date-time
      */
 
     /**
@@ -20,13 +40,32 @@ export class NotificationController {
      *   get:
      *     summary: Recupera todas as notificações do usuário autenticado
      *     tags: [Notifications]
+     *     security:
+     *       - bearerAuth: []
+     *     parameters:
+     *       - in: query
+     *         name: page
+     *         schema:
+     *           type: integer
+     *         description: Página atual (default = 1)
+     *       - in: query
+     *         name: pageSize
+     *         schema:
+     *           type: integer
+     *         description: "Quantidade de registros por página (máx: 100)"
      *     responses:
      *       200:
-     *         description: Notificações recuperadas com sucesso
+     *         description: Lista de notificações recuperada com sucesso
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: array
+     *               items:
+     *                 $ref: '#/components/schemas/Notification'
      *       401:
-     *         description: Não autorizado
+     *         description: Token inválido ou não enviado
      *       500:
-     *         description: Erro interno
+     *         description: Erro interno do servidor
      */
     getNotifications = async (req: Request, res: Response) => {
         try {
@@ -60,11 +99,28 @@ export class NotificationController {
      *   post:
      *     summary: Marca uma notificação como lida
      *     tags: [Notifications]
+     *     security:
+     *       - bearerAuth: []
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               id:
+     *                 type: integer
+     *             required:
+     *               - id
+     *           example:
+     *             id: 123
      *     responses:
      *       200:
      *         description: Notificação marcada como lida com sucesso
+     *       400:
+     *         description: Corpo da requisição inválido
      *       401:
-     *         description: Não autorizado
+     *         description: Token inválido ou não enviado
      *       404:
      *         description: Notificação não encontrada
      *       500:
@@ -100,15 +156,17 @@ export class NotificationController {
 
     /**
      * @swagger
-     * /notifications/mark-read-all:
+     * /notifications/read-all:
      *   post:
      *     summary: Marca todas as notificações do usuário autenticado como lidas
      *     tags: [Notifications]
+     *     security:
+     *       - bearerAuth: []
      *     responses:
      *       200:
-     *         description: Todas as notificações marcadas como lidas com sucesso
+     *         description: Todas as notificações foram marcadas como lidas
      *       401:
-     *         description: Não autorizado
+     *         description: Token inválido ou não enviado
      *       500:
      *         description: Erro interno
      */

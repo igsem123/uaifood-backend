@@ -17,38 +17,67 @@ export class OrderController {
 
     /**
      * @swagger
+     * components:
+     *   schemas:
+     *     OrderItemInput:
+     *       type: object
+     *       required: [productId, quantity]
+     *       properties:
+     *         productId:
+     *           type: integer
+     *         quantity:
+     *           type: integer
+     *
+     *     OrderInput:
+     *       type: object
+     *       required: [items, paymentMethod, totalAmount]
+     *       properties:
+     *         userId:
+     *           type: integer
+     *         items:
+     *           type: array
+     *           items:
+     *             $ref: '#/components/schemas/OrderItemInput'
+     *         paymentMethod:
+     *           type: string
+     *           enum: [CREDIT_CARD, DEBIT_CARD, CASH, PIX]
+     *         totalAmount:
+     *           type: number
+     *
+     *     UpdateOrderStatusInput:
+     *       type: object
+     *       required: [status]
+     *       properties:
+     *         status:
+     *           type: string
+     *           enum: [PENDING, CONFIRMED, DELIVERED, CANCELLED]
+     *         clientId:
+     *           type: integer
+     *         confirmedByUserId:
+     *           type: integer
+     */
+
+    /**
+     * @swagger
      * /orders:
      *   post:
      *     summary: Cria um novo pedido
      *     tags: [Orders]
+     *     security:
+     *       - bearerAuth: []
      *     requestBody:
      *       required: true
      *       content:
      *         application/json:
      *           schema:
-     *             type: object
-     *             properties:
-     *               userId:
-     *                 type: integer
-     *               items:
-     *                 type: array
-     *                 items:
-     *                   type: object
-     *                   properties:
-     *                     productId:
-     *                       type: integer
-     *                     quantity:
-     *                       type: integer
-     *               paymentMethod:
-     *                 type: string
-     *                 enum: [CREDIT_CARD, DEBIT_CARD, PAYPAL, CASH]
-     *               totalAmount:
-     *                 type: number
+     *             $ref: '#/components/schemas/OrderInput'
      *     responses:
      *       201:
      *         description: Pedido criado com sucesso
+     *       400:
+     *         description: Erro de validação
      *       500:
-     *         description: Erro interno
+     *         description: Erro interno no servidor
      */
     createOrder = async (req: Request, res: Response) => {
         try {
@@ -77,22 +106,26 @@ export class OrderController {
      * @swagger
      * /orders:
      *   get:
-     *     summary: Recupera todos os pedidos paginados
+     *     summary: Recupera todos os pedidos (somente admin)
      *     tags: [Orders]
+     *     security:
+     *       - bearerAuth: []
      *     parameters:
      *       - in: query
      *         name: page
      *         schema:
      *           type: integer
-     *         description: "Número da página (padrão: 1)"
+     *         example: 1
      *       - in: query
      *         name: pageSize
      *         schema:
      *           type: integer
-     *         description: "Número de itens por página (padrão: 10)"
+     *         example: 10
      *     responses:
      *       200:
      *         description: Lista de pedidos recuperada com sucesso
+     *       403:
+     *         description: Acesso negado
      *       500:
      *         description: Erro interno
      */
@@ -114,34 +147,37 @@ export class OrderController {
      * @swagger
      * /orders/client/{clientId}:
      *   get:
-     *     summary: Recupera todos os pedidos de um cliente específico paginados
+     *     summary: Recupera os pedidos de um cliente específico (apenas autenticado)
      *     tags: [Orders]
+     *     security:
+     *       - bearerAuth: []
      *     parameters:
      *       - in: path
      *         name: clientId
      *         required: true
      *         schema:
      *           type: integer
-     *         description: ID do cliente
      *       - in: query
      *         name: page
      *         schema:
      *           type: integer
-     *         description: "Número da página (padrão: 1)"
+     *         example: 1
      *       - in: query
      *         name: pageSize
      *         schema:
      *           type: integer
-     *         description: "Número de itens por página (padrão: 10)"
+     *         example: 10
      *     responses:
      *       200:
-     *         description: Lista de pedidos do cliente recuperada com sucesso
+     *         description: Lista de pedidos do cliente
+     *       403:
+     *         description: Acesso negado
      *       500:
      *         description: Erro interno
      */
     getOrdersByClientId = async (req: Request, res: Response) => {
         try {
-            const clientId = Number(req.params.clientId);
+            const clientId = BigInt(req.params.clientId);
             const { page, pageSize } = req.query;
             const paginatedOrders = await this.orderService.getOrdersByClientId(clientId, Number(page), Number(pageSize));
             res
@@ -161,25 +197,36 @@ export class OrderController {
      *   get:
      *     summary: Obtém um pedido pelo ID
      *     tags: [Orders]
+     *     security:
+     *       - bearerAuth: []
      *     parameters:
      *       - in: path
      *         name: id
      *         required: true
      *         schema:
      *           type: integer
-     *         description: ID do pedido
      *     responses:
      *       200:
-     *         description: Pedido obtido com sucesso
+     *         description: Pedido retornado com sucesso
+     *       401:
+     *         description: Não autenticado
+     *       403:
+     *         description: Você não tem permissão para acessar este pedido
      *       404:
      *         description: Pedido não encontrado
-     *       500:
-     *         description: Erro interno
      */
     getOrderById = async (req: Request, res: Response) => {
         try {
-            const id = Number(req.params.id);
-            const order = await this.orderService.getOrderById(id);
+            const orderId = BigInt(req.params.id);
+            const userId = req.user?.id;
+
+            if (!userId) {
+                return res
+                    .status(StatusCodes.UNAUTHORIZED)
+                    .json({ message: getReasonPhrase(StatusCodes.UNAUTHORIZED) });
+            }
+
+            const order = await this.orderService.getOrderById(orderId, userId);
 
             if (!order) {
                 return res
@@ -201,30 +248,29 @@ export class OrderController {
      * @swagger
      * /orders/{id}:
      *   patch:
-     *     summary: Atualiza o status de um pedido
+     *     summary: Atualiza o status de um pedido (somente admin)
      *     tags: [Orders]
+     *     security:
+     *       - bearerAuth: []
      *     parameters:
      *       - in: path
      *         name: id
      *         required: true
      *         schema:
      *           type: integer
-     *         description: ID do pedido
      *     requestBody:
      *       required: true
      *       content:
      *         application/json:
      *           schema:
-     *             type: object
-     *             properties:
-     *               status:
-     *                 type: string
-     *                 enum: [PENDING, PROCESSING, COMPLETED, CANCELLED]
+     *             $ref: '#/components/schemas/UpdateOrderStatusInput'
      *     responses:
      *       200:
-     *         description: Pedido atualizado com sucesso
+     *         description: Pedido atualizado
      *       400:
      *         description: Erro de validação
+     *       403:
+     *         description: Acesso negado
      *       500:
      *         description: Erro interno
      */
@@ -257,18 +303,21 @@ export class OrderController {
      * @swagger
      * /orders/{id}:
      *   delete:
-     *     summary: Deleta um pedido pelo ID
+     *     summary: Deleta um pedido (somente admin)
      *     tags: [Orders]
+     *     security:
+     *       - bearerAuth: []
      *     parameters:
      *       - in: path
      *         name: id
      *         required: true
      *         schema:
      *           type: integer
-     *         description: ID do pedido
      *     responses:
      *       200:
      *         description: Pedido deletado com sucesso
+     *       403:
+     *         description: Acesso negado
      *       500:
      *         description: Erro interno
      */

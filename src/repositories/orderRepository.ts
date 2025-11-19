@@ -14,13 +14,13 @@ export const OrderRepository = {
         return paginate(prisma.order, { page, pageSize });
     },
 
-    async findById(id: number): Promise<Order | null> {
+    async findById(orderId: bigint, userId: bigint): Promise<Order | null> {
         return prisma.order.findUnique({
-            where: { id },
+            where: { id: orderId, clientId: userId },
         });
     },
 
-    async findByClientIdPaginated(clientId: number, page: number, pageSize: number): Promise<PaginatedResult<Order>> {
+    async findByClientIdPaginated(clientId: bigint, page: number, pageSize: number): Promise<PaginatedResult<Order>> {
         return paginate(
             prisma.order,
             { page, pageSize},

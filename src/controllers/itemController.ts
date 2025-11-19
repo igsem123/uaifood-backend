@@ -18,30 +18,58 @@ export class ItemController {
 
     /**
      * @swagger
+     * components:
+     *   schemas:
+     *     Item:
+     *       type: object
+     *       properties:
+     *         id:
+     *           type: integer
+     *         name:
+     *           type: string
+     *         description:
+     *           type: string
+     *         unitPrice:
+     *           type: number
+     *       required:
+     *         - name
+     *         - unitPrice
+     */
+
+
+    /**
+     * @swagger
      * /items:
      *   post:
-     *     summary: Cria um novo item
+     *     summary: Cria um novo item (apenas ADMIN)
      *     tags: [Items]
+     *     security:
+     *       - bearerAuth: []
      *     requestBody:
      *       required: true
      *       content:
      *         application/json:
      *           schema:
-     *             type: object
-     *             properties:
-     *               name:
-     *                 type: string
-     *               description:
-     *                 type: string
-     *               unitPrice:
-     *                 type: number
+     *             $ref: '#/components/schemas/Item'
+     *           example:
+     *             name: "Ração Premium"
+     *             description: "Ração de alta qualidade para gado leiteiro"
+     *             unitPrice: 49.90
      *     responses:
      *       201:
      *         description: Item criado com sucesso
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/Item'
      *       400:
-     *         description: Erro de validação
+     *         description: Erro de validação dos dados
+     *       401:
+     *         description: Token não fornecido ou inválido
+     *       403:
+     *         description: Usuário não é ADMIN
      *       500:
-     *         description: Erro interno
+     *         description: Erro interno do servidor
      */
     createItem = async (req: Request, res: Response) => {
         try {
@@ -50,15 +78,15 @@ export class ItemController {
                 .status(StatusCodes.CREATED)
                 .json({message: getReasonPhrase(StatusCodes.CREATED), newItem});
         } catch (error) {
-            if (error instanceof Error) {
-                return res
-                    .status(StatusCodes.BAD_REQUEST)
-                    .json({message: error.message});
-            }
             if (error instanceof ZodError) {
                 return res
                     .status(StatusCodes.BAD_REQUEST)
                     .json({errors: error.issues});
+            }
+            if (error instanceof Error) {
+                return res
+                    .status(StatusCodes.BAD_REQUEST)
+                    .json({message: error.message});
             }
             return res
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)
@@ -70,11 +98,17 @@ export class ItemController {
      * @swagger
      * /items:
      *   get:
-     *     summary: Obtém todos os itens
+     *     summary: Obtém todos os itens (público)
      *     tags: [Items]
      *     responses:
      *       200:
-     *         description: Itens obtidos com sucesso
+     *         description: Lista de itens obtida com sucesso
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: array
+     *               items:
+     *                 $ref: '#/components/schemas/Item'
      *       500:
      *         description: Erro interno
      */
@@ -95,7 +129,7 @@ export class ItemController {
      * @swagger
      * /items/{id}:
      *   get:
-     *     summary: Obtém um item pelo ID
+     *     summary: Obtém um item pelo ID (público)
      *     tags: [Items]
      *     parameters:
      *       - in: path
@@ -106,7 +140,11 @@ export class ItemController {
      *         description: ID do item
      *     responses:
      *       200:
-     *         description: Item obtido com sucesso
+     *         description: Item encontrado
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/Item'
      *       404:
      *         description: Item não encontrado
      *       500:
@@ -135,8 +173,10 @@ export class ItemController {
      * @swagger
      * /items/{id}:
      *   patch:
-     *     summary: Atualiza um item existente
+     *     summary: Atualiza um item existente (apenas ADMIN)
      *     tags: [Items]
+     *     security:
+     *       - bearerAuth: []
      *     parameters:
      *       - in: path
      *         name: id
@@ -149,19 +189,21 @@ export class ItemController {
      *       content:
      *         application/json:
      *           schema:
-     *             type: object
-     *             properties:
-     *               name:
-     *                 type: string
-     *               description:
-     *                 type: string
-     *               unitPrice:
-     *                 type: number
+     *             $ref: '#/components/schemas/Item'
+     *           example:
+     *             name: "Ração Premium Atualizada"
+     *             unitPrice: 59.90
      *     responses:
      *       200:
      *         description: Item atualizado com sucesso
      *       400:
      *         description: Erro de validação
+     *       401:
+     *         description: Token não fornecido ou inválido
+     *       403:
+     *         description: Usuário não é ADMIN
+     *       404:
+     *         description: Item não encontrado
      *       500:
      *         description: Erro interno
      */
@@ -173,15 +215,15 @@ export class ItemController {
                 .status(StatusCodes.OK)
                 .json({message: getReasonPhrase(StatusCodes.OK), updatedItem});
         } catch (error) {
-            if (error instanceof Error) {
-                return res
-                    .status(StatusCodes.BAD_REQUEST)
-                    .json({message: error.message});
-            }
             if (error instanceof ZodError) {
                 return res
                     .status(StatusCodes.BAD_REQUEST)
                     .json({errors: error.issues});
+            }
+            if (error instanceof Error) {
+                return res
+                    .status(StatusCodes.BAD_REQUEST)
+                    .json({message: error.message});
             }
             res
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)
@@ -189,22 +231,30 @@ export class ItemController {
         }
     };
 
+
     /**
      * @swagger
      * /items/{id}:
      *   delete:
-     *     summary: Deleta um item existente
+     *     summary: Deleta um item existente (apenas ADMIN)
      *     tags: [Items]
+     *     security:
+     *       - bearerAuth: []
      *     parameters:
      *       - in: path
      *         name: id
      *         required: true
      *         schema:
      *           type: integer
-     *         description: ID do item
      *     responses:
      *       200:
      *         description: Item deletado com sucesso
+     *       401:
+     *         description: Token não fornecido ou inválido
+     *       403:
+     *         description: Usuário não é ADMIN
+     *       404:
+     *         description: Item não encontrado
      *       500:
      *         description: Erro interno
      */

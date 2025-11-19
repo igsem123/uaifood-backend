@@ -20,6 +20,40 @@ export class AuthController {
 
     /**
      * @swagger
+     * components:
+     *   schemas:
+     *     AuthUser:
+     *       type: object
+     *       properties:
+     *         id:
+     *           type: integer
+     *         name:
+     *           type: string
+     *         email:
+     *           type: string
+     *     LoginResponse:
+     *       type: object
+     *       properties:
+     *         message:
+     *           type: string
+     *         user:
+     *           $ref: '#/components/schemas/AuthUser'
+     *         accessToken:
+     *           type: string
+     *     RefreshResponse:
+     *       type: object
+     *       properties:
+     *         message:
+     *           type: string
+     *         user:
+     *           $ref: '#/components/schemas/AuthUser'
+     *         accessToken:
+     *           type: string
+     */
+
+
+    /**
+     * @swagger
      * /auth/login:
      *   post:
      *     summary: Realiza o login do usuário
@@ -30,6 +64,9 @@ export class AuthController {
      *         application/json:
      *           schema:
      *             type: object
+     *             required:
+     *               - email
+     *               - password
      *             properties:
      *               email:
      *                 type: string
@@ -38,6 +75,10 @@ export class AuthController {
      *     responses:
      *       200:
      *         description: Login realizado com sucesso
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/LoginResponse'
      *       401:
      *         description: Credenciais inválidas
      */
@@ -53,7 +94,7 @@ export class AuthController {
             res.cookie('refreshToken', refreshToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
-                sameSite: 'lax',
+                sameSite: 'strict',
                 maxAge: ms(process.env.REFRESH_EXPIRES_IN as StringValue),
             })
 
@@ -76,13 +117,18 @@ export class AuthController {
      * @swagger
      * /auth/refresh:
      *   post:
-     *     summary: Atualiza o token de acesso usando o token de refresh
+     *     summary: Atualiza o token de acesso usando o refresh token armazenado no cookie
      *     tags: [Auth]
+     *     description: O refresh token deve ser enviado automaticamente pelo navegador via cookie HttpOnly.
      *     responses:
      *       200:
      *         description: Token atualizado com sucesso
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/RefreshResponse'
      *       401:
-     *         description: Token de refresh inválido ou expirado
+     *         description: Token de refresh inválido ou ausente
      */
     refresh = async (req: Request, res: Response) => {
         try {
@@ -98,8 +144,7 @@ export class AuthController {
             res.cookie('refreshToken', newRefreshToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
-                sameSite: 'lax',
-                path: '/auth/refresh',
+                sameSite: 'strict',
                 maxAge: ms(process.env.REFRESH_EXPIRES_IN as StringValue),
             });
 
@@ -122,13 +167,16 @@ export class AuthController {
      * @swagger
      * /auth/logout:
      *   post:
-     *     summary: Realiza o logout do usuário
+     *     summary: Realiza o logout do usuário, invalidando o refresh token
      *     tags: [Auth]
+     *     security:
+     *       - bearerAuth: []
+     *     description: O refresh token deve estar presente no cookie.
      *     responses:
-     *       200:
+     *       204:
      *         description: Logout realizado com sucesso
      *       400:
-     *         description: Requisição inválida
+     *         description: Token de refresh ausente
      */
     logout = async (req: Request, res: Response)=> {
         try {
@@ -144,12 +192,10 @@ export class AuthController {
             res.clearCookie('refreshToken', {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
-                sameSite: 'lax',
+                sameSite: 'strict',
             });
 
-            res
-                .status(StatusCodes.OK)
-                .json({message: getReasonPhrase(StatusCodes.OK)});
+            res.status(StatusCodes.NO_CONTENT).send();
         } catch (error) {
             res
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)
@@ -163,9 +209,22 @@ export class AuthController {
      *   get:
      *     summary: Obtém o perfil do usuário autenticado
      *     tags: [Auth]
+     *     security:
+     *       - bearerAuth: []
      *     responses:
      *       200:
      *         description: Perfil obtido com sucesso
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 message:
+     *                   type: string
+     *                 user:
+     *                   $ref: '#/components/schemas/AuthUser'
+     *       401:
+     *         description: Token inválido ou ausente
      *       500:
      *         description: Erro interno do servidor
      */

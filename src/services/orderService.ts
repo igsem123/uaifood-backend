@@ -37,12 +37,12 @@ export class OrderService {
         return await orderRepository.findPaginated(page, pageSize);
     }
 
-    getOrdersByClientId = async (clientId: number, page: number, pageSize: number) => {
+    getOrdersByClientId = async (clientId: bigint, page: number, pageSize: number) => {
         return await orderRepository.findByClientIdPaginated(clientId, page, pageSize);
     }
 
-    getOrderById = async (id: number): Promise<Order | null> => {
-        return await orderRepository.findById(id);
+    getOrderById = async (orderId: bigint, userId: bigint): Promise<Order | null> => {
+        return await orderRepository.findById(orderId, userId);
     }
 
     addItem = async(orderId: bigint, data: { itemId: bigint; quantity: number }) => {

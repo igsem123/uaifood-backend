@@ -2,7 +2,7 @@ import {inject, injectable} from "tsyringe";
 import {UserService} from "../services/userService";
 import {Request, Response} from "express";
 import { z } from "zod";
-import { ReasonPhrases, StatusCodes, getReasonPhrase, getStatusCode } from "http-status-codes";
+import { StatusCodes, getReasonPhrase } from "http-status-codes";
 import {UserType} from "@prisma/client";
 
 @injectable()
@@ -14,6 +14,28 @@ export class UserController {
      * tags:
      *   name: Users
      *   description: Endpoints relacionados aos usuários
+     */
+
+    /**
+     * @swagger
+     * components:
+     *   schemas:
+     *     User:
+     *       type: object
+     *       properties:
+     *         id:
+     *           type: integer
+     *         name:
+     *           type: string
+     *         email:
+     *           type: string
+     *         type:
+     *           type: string
+     *           enum: [ADMIN, CLIENT]
+     *         createdAt:
+     *           type: string
+     *         updatedAt:
+     *           type: string
      */
 
     /**
@@ -72,23 +94,24 @@ export class UserController {
     /**
      * @swagger
      * /users/{id}:
-     *  get:
-     *   summary: Obtém um usuário pelo ID
-     *   tags: [Users]
-     *   parameters:
-     *     - in: path
-     *       name: id
-     *       required: true
-     *       schema:
-     *         type: integer
-     *       description: ID do usuário
-     *   responses:
-     *     200:
-     *       description: Usuário obtido com sucesso
-     *     404:
-     *       description: Usuário não encontrado
-     *     500:
-     *       description: Erro interno do servidor
+     *   get:
+     *     summary: Obtém um usuário pelo ID
+     *     tags: [Users]
+     *     security:
+     *       - BearerAuth: []
+     *     parameters:
+     *       - in: path
+     *         name: id
+     *         required: true
+     *         schema:
+     *           type: integer
+     *     responses:
+     *       200:
+     *         description: Usuário obtido com sucesso
+     *       404:
+     *         description: Usuário não encontrado
+     *       401:
+     *         description: Não autorizado (token inválido)
      */
     getUserById = async (req: Request, res: Response) => {
         try {
@@ -113,17 +136,12 @@ export class UserController {
 
     /**
      * @swagger
-     * /users/{id}:
+     * /users:
      *   patch:
-     *     summary: Atualiza um usuário existente
+     *     summary: Atualiza o usuário autenticado
      *     tags: [Users]
-     *     parameters:
-     *       - in: path
-     *         name: id
-     *         required: true
-     *         schema:
-     *           type: integer
-     *         description: ID do usuário a ser atualizado
+     *     security:
+     *       - BearerAuth: []
      *     requestBody:
      *       required: true
      *       content:
@@ -142,16 +160,21 @@ export class UserController {
      *         description: Usuário atualizado com sucesso
      *       400:
      *         description: Erro de validação
-     *       404:
-     *         description: Usuário não encontrado
-     *       500:
-     *         description: Erro interno do servidor
+     *       401:
+     *         description: Não autorizado
      */
     updateUser = async (req: Request, res: Response) => {
         try {
-            const id = BigInt(req.params.id);
+            const userId = req.user?.id;
+
+            if (!userId) {
+                return res
+                    .status(StatusCodes.UNAUTHORIZED)
+                    .json({ message: getReasonPhrase(StatusCodes.UNAUTHORIZED) });
+            }
+
             const data = {...req.body};
-            const updatedUser = await this.userService.updateUser(id, data);
+            const updatedUser = await this.userService.updateUser(userId, data);
 
             res
                 .status(StatusCodes.OK)
@@ -174,29 +197,31 @@ export class UserController {
 
     /**
      * @swagger
-     * /users/{id}:
+     * /users:
      *   delete:
-     *     summary: Deleta um usuário pelo ID
+     *     summary: Deleta o usuário autenticado
      *     tags: [Users]
-     *     parameters:
-     *       - in: path
-     *         name: id
-     *         required: true
-     *         schema:
-     *           type: integer
-     *         description: ID do usuário a ser deletado
+     *     security:
+     *       - BearerAuth: []
      *     responses:
      *       200:
      *         description: Usuário deletado com sucesso
-     *       400:
-     *         description: Requisição inválida
+     *       401:
+     *         description: Não autorizado
      *       500:
-     *         description: Erro interno do servidor
+     *         description: Erro interno
      */
     deleteUser = async (req: Request, res: Response) => {
         try {
-            const id = BigInt(req.params.id);
-            const deletedUser = await this.userService.deleteUser(id);
+            const userId = req.user?.id;
+
+            if (!userId) {
+                return res
+                    .status(StatusCodes.UNAUTHORIZED)
+                    .json({ message: getReasonPhrase(StatusCodes.UNAUTHORIZED) });
+            }
+
+            const deletedUser = await this.userService.deleteUser(userId);
 
             res
                 .status(StatusCodes.OK)
@@ -216,34 +241,30 @@ export class UserController {
     /**
      * @swagger
      * /users/{id}/relations:
-     *  post:
-     *   summary: Obtém um usuário pelo ID com relações especificadas
-     *   tags: [Users]
-     *   parameters:
-     *     - in: path
-     *       name: id
-     *       required: true
-     *       schema:
-     *         type: integer
-     *       description: ID do usuário
-     *   requestBody:
-     *     required: true
-     *     content:
-     *       application/json:
+     *   get:
+     *     summary: Obtém um usuário com relações especificadas
+     *     tags: [Users]
+     *     security:
+     *       - BearerAuth: []
+     *     parameters:
+     *       - in: path
+     *         name: id
+     *         required: true
      *         schema:
-     *           type: object
-     *           properties:
-     *             relations:
-     *               type: array
-     *               items:
-     *                 type: string
-     *   responses:
-     *     200:
-     *       description: Usuário obtido com sucesso
-     *     404:
-     *       description: Usuário não encontrado
-     *     500:
-     *       description: Erro interno do servidor
+     *           type: integer
+     *       - in: query
+     *         name: include
+     *         required: false
+     *         schema:
+     *           type: string
+     *         description: "Relações separadas por vírgula (ex: 'addresses,orders')"
+     *     responses:
+     *       200:
+     *         description: Usuário e relações retornados com sucesso
+     *       404:
+     *         description: Usuário não encontrado
+     *       401:
+     *         description: Token inválido ou ausente
      */
     getUserWithRelations = async (req: Request, res: Response) => {
         try {
