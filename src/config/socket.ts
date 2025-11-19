@@ -2,7 +2,13 @@ import { Server as HttpServer } from "http";
 import { Server, Socket } from "socket.io";
 import jwt from "jsonwebtoken";
 
-type JwtPayload = { sub: string; userId?: number };
+type JwtPayload = {
+    id: string;
+    email: string;
+    iat: number;
+    exp: number;
+};
+
 
 let io: Server;
 
@@ -17,17 +23,16 @@ export function initSocket(httpServer: HttpServer) {
     // middleware de autenticação no handshake
     io.use((socket, next) => {
         const token = socket.handshake.auth?.token as string | undefined;
-        if (!token) return next(new Error("Unauthorized"));
+        if (!token) return next(new Error("Não autorizado"));
 
         try {
             const payload = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload;
-            const userId = payload.userId ?? Number(payload.sub);
-            if (!userId) return next(new Error("Invalid token payload"));
-
+            const userId = Number(payload.id);
+            if (!userId) return next(new Error("Payload inválido"));
             socket.data.userId = userId;
             next();
         } catch (err) {
-            next(new Error("Unauthorized"));
+            next(new Error("Token inválido"));
         }
     });
 
@@ -36,11 +41,6 @@ export function initSocket(httpServer: HttpServer) {
         onlineUsers.set(userId, socket.id);
         socket.join(`user:${userId}`);
         console.log(`user ${userId} connected socket=${socket.id}`);
-
-        // opcional: cliente pode pedir unread count
-        socket.on("get_unread_count", async (cb) => {
-
-        });
 
         socket.on("disconnect", (reason) => {
             console.log(`user ${userId} disconnected ${reason}`);
