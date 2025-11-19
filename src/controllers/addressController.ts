@@ -17,30 +17,57 @@ export class AddressController {
 
     /**
      * @swagger
+     * components:
+     *   schemas:
+     *     Address:
+     *       type: object
+     *       properties:
+     *         id:
+     *           type: integer
+     *         street:
+     *           type: string
+     *         city:
+     *           type: string
+     *         state:
+     *           type: string
+     *         zipCode:
+     *           type: string
+     *         userId:
+     *           type: integer
+     */
+
+
+    /**
+     * @swagger
      * /addresses:
      *   post:
      *     summary: Cria um novo endereço
      *     tags: [Addresses]
+     *     security:
+     *       - bearerAuth: []
      *     requestBody:
      *       required: true
      *       content:
      *         application/json:
      *           schema:
      *             type: object
-     *             properties:
-     *               street:
-     *                 type: string
-     *               city:
-     *                 type: string
-     *               state:
-     *                 type: string
-     *               zipCode:
-     *                 type: string
-     *               userId:
-     *                 type: integer
+     *             required:
+     *               - street
+     *               - city
+     *               - state
+     *               - zipCode
+     *           example:
+     *             street: "Rua A"
+     *             city: "São Paulo"
+     *             state: "SP"
+     *             zipCode: "12345-678"
      *     responses:
      *       201:
      *         description: Endereço criado com sucesso
+     *       400:
+     *         description: Dados inválidos
+     *       401:
+     *         description: Não autenticado
      *       500:
      *         description: Erro interno
      */
@@ -61,16 +88,15 @@ export class AddressController {
                 .status(StatusCodes.CREATED)
                 .json({ message: getReasonPhrase(StatusCodes.CREATED), address });
         } catch (error) {
-            console.log(error);
-            if (error instanceof Error) {
-                return res
-                    .status(StatusCodes.BAD_REQUEST)
-                    .json({ message: error.message });
-            }
             if (error instanceof ZodError) {
                 return res
                     .status(StatusCodes.BAD_REQUEST)
                     .json({ errors: error.issues });
+            }
+            if (error instanceof Error) {
+                return res
+                    .status(StatusCodes.BAD_REQUEST)
+                    .json({ message: error.message });
             }
             res
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)
@@ -84,26 +110,23 @@ export class AddressController {
      *   patch:
      *     summary: Atualiza um endereço existente
      *     tags: [Addresses]
-     *     requestBody:
-     *       required: true
-     *       content:
-     *         application/json:
-     *           schema:
-     *             type: object
-     *             properties:
-     *               street:
-     *                 type: string
-     *               city:
-     *                 type: string
-     *               state:
-     *                 type: string
-     *               zipCode:
-     *                 type: string
-     *               userId:
-     *                 type: integer
+     *     security:
+     *       - bearerAuth: []
+     *     parameters:
+     *       - in: path
+     *         name: id
+     *         required: true
+     *         schema:
+     *           type: integer
      *     responses:
      *       200:
      *         description: Endereço atualizado com sucesso
+     *       400:
+     *         description: Dados inválidos
+     *       401:
+     *         description: Não autenticado
+     *       404:
+     *         description: Endereço não encontrado
      *       500:
      *         description: Erro interno
      */
@@ -124,15 +147,15 @@ export class AddressController {
                 .status(StatusCodes.OK)
                 .json({ message: getReasonPhrase(StatusCodes.OK), address });
         } catch (error) {
-            if (error instanceof Error) {
-                return res
-                    .status(StatusCodes.BAD_REQUEST)
-                    .json({ message: error.message });
-            }
             if (error instanceof ZodError) {
                 return res
                     .status(StatusCodes.BAD_REQUEST)
                     .json({ errors: error.issues });
+            }
+            if (error instanceof Error) {
+                return res
+                    .status(StatusCodes.BAD_REQUEST)
+                    .json({ message: error.message });
             }
             res
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)
@@ -146,23 +169,35 @@ export class AddressController {
      *   delete:
      *     summary: Deleta um endereço existente
      *     tags: [Addresses]
+     *     security:
+     *       - bearerAuth: []
      *     parameters:
      *       - in: path
      *         name: id
      *         required: true
      *         schema:
      *           type: integer
-     *         description: ID do endereço a ser deletado
      *     responses:
      *       200:
      *         description: Endereço deletado com sucesso
+     *       401:
+     *         description: Não autenticado
+     *       404:
+     *         description: Endereço não encontrado
      *       500:
      *         description: Erro interno
      */
     deleteAddress = async (req: Request, res: Response) => {
         try {
-            const id = Number(req.params.id);
-            const address = await this.addressService.deleteAddress(id);
+            const addressId = BigInt(req.params.id);
+            const userId = req.user?.id;
+
+            if (!userId) {
+                return res
+                    .status(StatusCodes.UNAUTHORIZED)
+                    .json({ message: ReasonPhrases.UNAUTHORIZED });
+            }
+            const address = await this.addressService.deleteAddress(addressId, userId);
             res
                 .status(StatusCodes.OK)
                 .json({ message: getReasonPhrase(StatusCodes.OK), address });

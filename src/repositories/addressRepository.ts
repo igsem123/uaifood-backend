@@ -18,9 +18,9 @@ export const AddressRepository = {
         });
     },
 
-    async deleteAddress(id: number): Promise<Address> {
+    async deleteAddress(addressId: bigint, userId: bigint): Promise<Address> {
         return prisma.address.delete({
-            where: { id: id},
+            where: { id: addressId, userId: userId },
         });
     }
 }

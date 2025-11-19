@@ -17,16 +17,80 @@ export class CategoryController {
 
     /**
      * @swagger
+     * components:
+     *   schemas:
+     *     Category:
+     *       type: object
+     *       properties:
+     *         id:
+     *           type: integer
+     *         name:
+     *           type: string
+     *         description:
+     *           type: string
+     *         createdAt:
+     *           type: string
+     *           format: date-time
+     *         updatedAt:
+     *           type: string
+     *           format: date-time
+     *
+     *     CategoryResponse:
+     *       type: object
+     *       properties:
+     *         message:
+     *           type: string
+     *         category:
+     *           $ref: '#/components/schemas/Category'
+     *
+     *     CategoryListResponse:
+     *       type: object
+     *       properties:
+     *         message:
+     *           type: string
+     *         categories:
+     *           type: array
+     *           items:
+     *             $ref: '#/components/schemas/Category'
+     *
+     *     ValidationError:
+     *       type: object
+     *       properties:
+     *         message:
+     *           type: string
+     *
+     *     ZodValidationError:
+     *       type: object
+     *       properties:
+     *         errors:
+     *           type: array
+     *           items:
+     *             type: object
+     *             properties:
+     *               path:
+     *                 type: array
+     *                 items:
+     *                   type: string
+     *               message:
+     *                 type: string
+     */
+
+    /**
+     * @swagger
      * /categories:
      *   post:
      *     summary: Cria uma nova categoria
      *     tags: [Categories]
+     *     security:
+     *       - bearerAuth: []
      *     requestBody:
      *       required: true
      *       content:
      *         application/json:
      *           schema:
      *             type: object
+     *             required:
+     *               - name
      *             properties:
      *               name:
      *                 type: string
@@ -35,8 +99,16 @@ export class CategoryController {
      *     responses:
      *       201:
      *         description: Categoria criada com sucesso
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/CategoryResponse'
      *       400:
-     *         description: Erro de validação
+     *         description: Dados inválidos
+     *       401:
+     *         description: Não autenticado
+     *       403:
+     *         description: Sem permissão
      *       500:
      *         description: Erro interno
      */
@@ -47,15 +119,15 @@ export class CategoryController {
                 .status(StatusCodes.CREATED)
                 .json({ message: getReasonPhrase(StatusCodes.CREATED), category: newCategory });
         } catch (error) {
-            if (error instanceof Error) {
-                return res
-                    .status(StatusCodes.BAD_REQUEST)
-                    .json({ message: error.message });
-            }
             if (error instanceof ZodError) {
                 return res
                     .status(StatusCodes.BAD_REQUEST)
                     .json({ errors: error.issues });
+            }
+            if (error instanceof Error) {
+                return res
+                    .status(StatusCodes.BAD_REQUEST)
+                    .json({ message: error.message });
             }
             return res
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)
@@ -67,11 +139,15 @@ export class CategoryController {
      * @swagger
      * /categories:
      *   get:
-     *     summary: Obtém todas as categorias
+     *     summary: Lista todas as categorias
      *     tags: [Categories]
      *     responses:
      *       200:
      *         description: Lista de categorias obtida com sucesso
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/CategoryListResponse'
      *       500:
      *         description: Erro interno
      */
@@ -94,13 +170,14 @@ export class CategoryController {
      *   patch:
      *     summary: Atualiza uma categoria existente
      *     tags: [Categories]
+     *     security:
+     *       - bearerAuth: []
      *     parameters:
      *       - in: path
      *         name: id
      *         required: true
      *         schema:
      *           type: integer
-     *         description: ID da categoria
      *     requestBody:
      *       required: true
      *       content:
@@ -115,8 +192,24 @@ export class CategoryController {
      *     responses:
      *       200:
      *         description: Categoria atualizada com sucesso
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/CategoryResponse'
      *       400:
-     *         description: Erro de validação
+     *         description: Erro nos dados enviados
+     *         content:
+     *           application/json:
+     *             schema:
+     *               oneOf:
+     *                 - $ref: '#/components/schemas/ValidationError'
+     *                 - $ref: '#/components/schemas/ZodValidationError'
+     *       401:
+     *          description: Não autenticado
+     *       403:
+     *          description: Sem permissão
+     *       404:
+     *         description: Categoria não encontrada
      *       500:
      *         description: Erro interno
      */
@@ -128,15 +221,15 @@ export class CategoryController {
                 .status(StatusCodes.OK)
                 .json({ message: getReasonPhrase(StatusCodes.OK), category: updatedCategory });
         } catch (error) {
-            if (error instanceof Error) {
-                return res
-                    .status(StatusCodes.BAD_REQUEST)
-                    .json({ message: error.message });
-            }
             if (error instanceof ZodError) {
                 return res
                     .status(StatusCodes.BAD_REQUEST)
                     .json({ errors: error.issues });
+            }
+            if (error instanceof Error) {
+                return res
+                    .status(StatusCodes.BAD_REQUEST)
+                    .json({ message: error.message });
             }
             return res
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)
@@ -150,6 +243,8 @@ export class CategoryController {
      *   delete:
      *     summary: Deleta uma categoria existente
      *     tags: [Categories]
+     *     security:
+     *       - bearerAuth: []
      *     parameters:
      *       - in: path
      *         name: id
@@ -160,8 +255,22 @@ export class CategoryController {
      *     responses:
      *       200:
      *         description: Categoria deletada com sucesso
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/CategoryResponse'
      *       400:
      *         description: Erro de validação
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ValidationError'
+     *       401:
+     *         description: Não autenticado
+     *       403:
+     *         description: Sem permissão
+     *       404:
+     *         description: Categoria não encontrada
      *       500:
      *         description: Erro interno
      */

@@ -6,7 +6,7 @@ dotenv.config();
 
 export function generateAccessToken(user: User): string {
     return jwt.sign(
-        { id: user.id, email: user.email },
+        { id: user.id, email: user.email, type: user.type },
         process.env.JWT_SECRET as string,
         { expiresIn: process.env.JWT_EXPIRES_IN } as jwt.SignOptions
     );

@@ -21,11 +21,11 @@ export class AddressService {
         if (!user) {
             throw new Error('Usuário não encontrado');
         }
-        UpdateAddressScheme.parse(data);
+        UpdateAddressScheme.parse({userId, data});
         return await AddressRepository.updateAddress(userId, addressId, data);
     }
 
-    deleteAddress = async (id: number): Promise<Address> => {
-        return await AddressRepository.deleteAddress(id);
+    deleteAddress = async (addressId: bigint, userId: bigint): Promise<Address> => {
+        return await AddressRepository.deleteAddress(addressId, userId);
     }
 }
