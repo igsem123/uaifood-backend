@@ -14,6 +14,7 @@ export const CreateOrderScheme = zod.object({
 });
 
 export const OrderUpdateScheme = zod.object({
+    clientId: zod.number('Identificador do cliente deve ser um número').int().positive().optional(),
     confirmedByUserId: zod.number('Identificador do usuário administrador é obrigatório').int().positive(),
     status: zod.enum(OrderStatus, 'Status do pedido é obrigatório'),
 });

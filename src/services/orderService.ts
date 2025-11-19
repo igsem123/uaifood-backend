@@ -62,20 +62,20 @@ export class OrderService {
         });
     }
 
-    updateOrder = async (id: number, data: Partial<Omit<Order, 'id'>>): Promise<Order> => {
+    updateOrder = async (orderId: bigint, data: Partial<Omit<Order, 'id'>>): Promise<Order> => {
         OrderUpdateScheme.parse(data);
 
         await this.notificationService.createAndEmit(BigInt(data.clientId || 0), {
             title: 'Pedido Atualizado',
-            body: `Seu pedido #${id} foi atualizado.`,
-            data: {orderId: id},
+            body: `Seu pedido #${orderId} foi atualizado.`,
+            data: {orderId: Number(orderId)},
             userId: BigInt(data.clientId || 0),
         });
 
-        return await orderRepository.update(id, data);
+        return await orderRepository.update(orderId, data);
     }
 
-    deleteOrder = async (id: number): Promise<Order> => {
+    deleteOrder = async (id: bigint): Promise<Order> => {
         return await orderRepository.delete(id);
     }
 }

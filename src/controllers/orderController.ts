@@ -230,8 +230,9 @@ export class OrderController {
      */
     updateOrder = async (req: Request, res: Response) => {
         try {
-            const id = Number(req.params.id);
-            const updatedOrder = await this.orderService.updateOrder(id, req.body);
+            const orderId = BigInt(req.params.id);
+            const updatedOrder = await this.orderService.updateOrder(orderId, req.body);
+
             res
                 .status(StatusCodes.OK)
                 .json({ message: getReasonPhrase(StatusCodes.OK), updatedOrder });
@@ -273,7 +274,7 @@ export class OrderController {
      */
     deleteOrder = async (req: Request, res: Response) => {
         try {
-            const id = Number(req.params.id);
+            const id = BigInt(req.params.id);
             const deletedOrder = await this.orderService.deleteOrder(id);
             res
                 .status(StatusCodes.OK)

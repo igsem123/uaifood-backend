@@ -33,15 +33,13 @@ export function initSocket(httpServer: HttpServer) {
 
     io.on("connection", (socket: Socket) => {
         const userId: number = socket.data.userId;
-        // se quiser suportar múltiplas conexões por user, use Map<number, Set<string>>
         onlineUsers.set(userId, socket.id);
         socket.join(`user:${userId}`);
         console.log(`user ${userId} connected socket=${socket.id}`);
 
         // opcional: cliente pode pedir unread count
         socket.on("get_unread_count", async (cb) => {
-            // aqui você pode chamar função para contar não-lidas e retornar
-            // ex: cb({ count: await countUnread(userId) });
+
         });
 
         socket.on("disconnect", (reason) => {

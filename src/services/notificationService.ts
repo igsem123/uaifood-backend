@@ -25,7 +25,7 @@ export class NotificationService {
         return notificationRepository.findByUser(userId, {skip, take});
     };
 
-    markAsRead = async (notificationId: bigint, userId: bigint): Promise<void> => {
+    markAsRead = async (userId: bigint, notificationId: bigint): Promise<void> => {
         await notificationRepository.markAsRead(notificationId, userId);
 
         // atualiza contagem de unread

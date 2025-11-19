@@ -56,17 +56,10 @@ export class NotificationController {
 
     /**
      * @swagger
-     * /notifications/{id}/read:
+     * /notifications/read:
      *   post:
      *     summary: Marca uma notificação como lida
      *     tags: [Notifications]
-     *     parameters:
-     *       - in: path
-     *         name: id
-     *         required: true
-     *         schema:
-     *           type: integer
-     *         description: ID da notificação
      *     responses:
      *       200:
      *         description: Notificação marcada como lida com sucesso
