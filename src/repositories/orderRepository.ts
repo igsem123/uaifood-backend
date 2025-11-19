@@ -1,5 +1,5 @@
 import {prisma} from "../config/prisma";
-import {Order, OrderStatus, PaymentMethod} from "@prisma/client";
+import {Order} from "@prisma/client";
 import {paginate, PaginatedResult} from "../utils/pagination";
 
 export const OrderRepository = {

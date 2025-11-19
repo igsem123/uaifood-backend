@@ -1,5 +1,5 @@
 import { prisma } from "../config/prisma";
-import { User } from "@prisma/client";
+import {User, UserType} from "@prisma/client";
 
 const UserRepository = {
     async createUser(data: Omit<User, "id" | "createdAt" | "updatedAt">): Promise<User> {
@@ -38,6 +38,13 @@ const UserRepository = {
         return prisma.user.findUnique({
             where: { id },
             include: Object.fromEntries(relation.map(rel => [rel, true])),
+        });
+    },
+
+    async findAdmins(): Promise<User[]> {
+        return prisma.user.findMany({
+            where: { type: UserType.ADMIN },
+            orderBy: { id: 'asc' }
         });
     }
 }

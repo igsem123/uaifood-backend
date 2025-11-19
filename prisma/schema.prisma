@@ -20,9 +20,10 @@ model User {
   updatedAt DateTime  @updatedAt
 
   clientOrders    Order[] @relation("ClientOrders")
-  confirmedOrders Order[] @relation("CorfirmedOrders")
+  confirmedOrders Order[] @relation("ConfirmedOrders")
 
   refreshTokens RefreshToken[]
+  notifications Notification[]
 }
 
 model Address {
@@ -56,8 +57,8 @@ model Order {
   id                BigInt        @id @default(autoincrement())
   client            User          @relation("ClientOrders", fields: [clientId], references: [id], onDelete: Cascade)
   clientId          BigInt
-  corfirmedByUser   User?         @relation("CorfirmedOrders", fields: [corfirmedByUserId], references: [id])
-  corfirmedByUserId BigInt?
+  confirmedByUser   User?         @relation("ConfirmedOrders", fields: [confirmedByUserId], references: [id])
+  confirmedByUserId BigInt?
   address           Address       @relation(fields: [addressId], references: [id])
   addressId         BigInt
   paymentMethod     PaymentMethod
@@ -100,6 +101,20 @@ model Category {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   item        Item[]
+}
+
+model Notification {
+  id        BigInt   @id @default(autoincrement())
+  userId    BigInt
+  title     String
+  body      String
+  data      Json? // payload extra (ex: {orderId: 123})
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId, read])
+  @@index([createdAt])
 }
 
 enum UserType {
