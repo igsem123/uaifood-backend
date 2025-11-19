@@ -48,7 +48,7 @@ export class OrderService {
     addItem = async(orderId: bigint, data: { itemId: bigint; quantity: number }) => {
         const item = await itemRepository.findById(Number(data.itemId));
 
-        if (!item) throw new Error('Item not found');
+        if (!item) throw new Error('Item não encontrado');
 
         const unitPrice = item.unitPrice;
         const subtotal = unitPrice.mul(data.quantity);

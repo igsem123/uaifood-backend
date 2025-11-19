@@ -10,7 +10,7 @@ export class AddressService {
     createAddress = async (data: Omit<Address, 'id' | 'createdAt' | 'updatedAt'>): Promise<Address> => {
         const user = await this.userService.findUserById(data.userId);
         if (!user) {
-            throw new Error('User not found');
+            throw new Error('Usuário não encontrado');
         }
         CreateAddressScheme.parse(data);
         return await AddressRepository.createAddress(data);
@@ -19,7 +19,7 @@ export class AddressService {
     updateAddress = async (userId: bigint, addressId: bigint, data: Omit<Address, 'id' | 'createdAt' | 'updatedAt'>): Promise<Address> => {
         const user = await this.userService.findUserById(userId);
         if (!user) {
-            throw new Error('User not found');
+            throw new Error('Usuário não encontrado');
         }
         UpdateAddressScheme.parse(data);
         return await AddressRepository.updateAddress(userId, addressId, data);

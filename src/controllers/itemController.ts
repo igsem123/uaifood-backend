@@ -120,10 +120,10 @@ export class ItemController {
                 .status(StatusCodes.OK)
                 .json({message: getReasonPhrase(StatusCodes.OK), item});
         } catch (error) {
-            if (error instanceof Error && error.message === 'Item not found') {
+            if (error instanceof Error) {
                 return res
                     .status(StatusCodes.NOT_FOUND)
-                    .json({message: getReasonPhrase(StatusCodes.NOT_FOUND)});
+                    .json({message: error.message});
             }
             res
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)

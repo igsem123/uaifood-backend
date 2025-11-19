@@ -2,18 +2,18 @@ import z from "zod";
 
 export const UserScheme = z.object({
     id: z.number().optional(),
-    name: z.string().min(2).max(100),
-    email: z.email(),
-    password: z.string().min(8).refine((password) => validatePasswordStrength(password), {
-        message: "A senha deve conter pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial.",
-    })
+    name: z.string().min(2, { message: 'Nome deve ter pelo menos 2 caracteres' }).max(100, { message: 'Nome deve ter no máximo 100 caracteres' }),
+    email: z.email({ message: 'Email inválido' }),
+    password: z.string().min(8, { message: 'Senha deve ter pelo menos 8 caracteres' }).refine(validatePasswordStrength, {
+        message: 'A senha deve conter pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial.',
+    }),
 });
 
 export const UserUpdateScheme = z.object({
-    name: z.string().min(2).max(100).optional(),
-    email: z.email().optional(),
-    password: z.string().min(8).refine((password) => validatePasswordStrength(password), {
-        message: "A senha deve conter pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial.",
+    name: z.string().min(2, { message: 'Nome deve ter pelo menos 2 caracteres' }).max(100, { message: 'Nome deve ter no máximo 100 caracteres' }).optional(),
+    email: z.email({ message: 'Email inválido' }).optional(),
+    password: z.string().min(8, { message: 'Senha deve ter pelo menos 8 caracteres' }).refine(validatePasswordStrength, {
+        message: 'A senha deve conter pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial.',
     }).optional()
 });
 

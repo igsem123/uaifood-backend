@@ -11,7 +11,7 @@ export class CategoryService {
         const existingCategory = await CategoryRepository.findByName(data.name);
 
         if (existingCategory) {
-            throw new Error('Category with this name already exists');
+            throw new Error('Categoria com esse nome já existe');
         }
 
         return await CategoryRepository.create(data);
@@ -25,7 +25,7 @@ export class CategoryService {
         const existingCategory = await CategoryRepository.findById(id);
 
         if (!existingCategory) {
-            throw new Error('Category not found');
+            throw new Error('Categoria não encontrada');
         }
 
         CategoryUpdateScheme.parse(data);
@@ -36,7 +36,7 @@ export class CategoryService {
         const existingCategory = await CategoryRepository.findById(id);
 
         if (!existingCategory) {
-            throw new Error('Category not found');
+            throw new Error('Categoria não encontrada');
         }
 
         return await CategoryRepository.delete(id);
