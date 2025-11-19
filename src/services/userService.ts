@@ -9,7 +9,7 @@ export class UserService {
     registerUser = async (data: User): Promise<User> => {
         const existingUser = await userRepository.getUserByEmail(data.email);
         if (existingUser) {
-            throw new Error('Email already in use');
+            throw new Error('Email já está em uso');
         }
 
         UserScheme.parse(data);
@@ -25,7 +25,7 @@ export class UserService {
     updateUser = async (id: bigint, data: Partial<Omit<User, "id">>): Promise<User> => {
         const user = await userRepository.getUserById(id);
         if (!user) {
-            throw new Error('User not found');
+            throw new Error('Usuário não encontrado');
         }
 
         UserUpdateScheme.parse(data);
@@ -36,7 +36,7 @@ export class UserService {
     deleteUser = async (id: bigint): Promise<User> => {
         const user = await userRepository.getUserById(id);
         if (!user) {
-            throw new Error('User not found');
+            throw new Error('Usuário não encontrado');
         }
         return await userRepository.deleteUser(id);
     }

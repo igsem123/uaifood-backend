@@ -54,7 +54,6 @@ export class AuthController {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'lax',
-                path: '/auth/refresh',
                 maxAge: ms(process.env.REFRESH_EXPIRES_IN as StringValue),
             })
 
@@ -62,6 +61,11 @@ export class AuthController {
                 .status(StatusCodes.OK)
                 .json({message: getReasonPhrase(StatusCodes.OK), user, accessToken});
         } catch (error) {
+            if (error instanceof Error) {
+                return res
+                    .status(StatusCodes.UNAUTHORIZED)
+                    .json({message: error.message});
+            }
             res
                 .status(StatusCodes.UNAUTHORIZED)
                 .json({message: getReasonPhrase(StatusCodes.UNAUTHORIZED)});

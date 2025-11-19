@@ -19,7 +19,7 @@ export class ItemService {
         const existingItem = await itemRepository.findById(id);
 
         if (!existingItem) {
-            throw new Error('Item not found');
+            throw new Error('Item não encontrado');
         }
 
         ItemUpdateScheme.parse(data);
@@ -30,7 +30,7 @@ export class ItemService {
         const existingItem = await itemRepository.findById(id);
 
         if (!existingItem) {
-            throw new Error('Item not found');
+            throw new Error('Item não encontrado');
         }
 
         return await itemRepository.delete(id);

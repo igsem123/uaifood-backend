@@ -16,7 +16,7 @@ export const itemRepository = {
 
     async findAll(): Promise<Item[]> {
         return prisma.item.findMany({
-                orderBy: { name: 'asc' }
+                orderBy: { id: 'asc' }
             });
     },
 

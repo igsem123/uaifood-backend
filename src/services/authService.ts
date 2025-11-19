@@ -6,7 +6,6 @@ import {prisma} from "../config/prisma";
 import dotenv from "dotenv";
 import ms, {StringValue} from "ms";
 import jwt from "jsonwebtoken";
-import {User} from "@prisma/client";
 
 dotenv.config();
 
@@ -18,12 +17,12 @@ export class AuthService {
     login = async (email: string, password: string): Promise<any> => {
         const user = await this.userService.findUserByEmail(email, 'addresses');
         if (!user) {
-            throw new Error('Invalid email or password');
+            throw new Error('Email ou senha inválidos');
         }
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
-            throw new Error('Invalid email or password');
+            throw new Error('Email ou senha inválidos');
         }
 
         const accessToken = generateAccessToken(user);
@@ -52,11 +51,11 @@ export class AuthService {
         });
 
         if (!storedToken || storedToken.expiresAt < new Date()) {
-            throw new Error('Invalid or expired refresh token');
+            throw new Error('Token inválido ou expirado');
         }
 
         if (!process.env.REFRESH_SECRET) {
-            throw new Error('Missing refresh secret');
+            throw new Error('Refresh secret não foi definida');
         }
 
         let payload: any;
@@ -64,11 +63,11 @@ export class AuthService {
         try {
             payload = jwt.verify(token, process.env.REFRESH_SECRET);
         } catch {
-            throw new Error('Invalid or corrupted refresh token');
+            throw new Error('Token inválido ou corrompido');
         }
 
         if (payload.id !== storedToken.userId) {
-            throw new Error('Token user mismatch');
+            throw new Error('Usuário inválido para este token');
         }
 
         const { password, ...user } = storedToken.user;

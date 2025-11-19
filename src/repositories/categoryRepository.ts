@@ -9,7 +9,7 @@ export const CategoryRepository = {
     },
     async findAll(): Promise<Category[]> {
         return prisma.category.findMany({
-            orderBy: { name: 'asc' }
+            orderBy: { id: 'asc' }
         });
     },
     async findById(id: number): Promise<Category | null> {

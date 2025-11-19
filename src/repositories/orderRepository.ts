@@ -1,5 +1,5 @@
 import {prisma} from "../config/prisma";
-import {Order, OrderStatus, PaymentMethod} from "@prisma/client";
+import {Order} from "@prisma/client";
 import {paginate, PaginatedResult} from "../utils/pagination";
 
 export const OrderRepository = {
@@ -28,14 +28,14 @@ export const OrderRepository = {
         );
     },
 
-    async update(id: number, data: Partial<Omit<Order, 'id'>>): Promise<Order> {
+    async update(id: bigint, data: Partial<Omit<Order, 'id'>>): Promise<Order> {
         return prisma.order.update({
             where: { id },
             data,
         });
     },
 
-    async delete(id: number): Promise<Order> {
+    async delete(id: bigint): Promise<Order> {
         return prisma.order.delete({
             where: { id },
         });

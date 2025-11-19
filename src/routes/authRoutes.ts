@@ -9,7 +9,7 @@ const router = Router();
 
 router.post("/login", authController.login);
 router.post("/refresh", authController.refresh);
-router.post("/logout", authController.logout);
+router.post("/logout", passport.authenticate("jwt", { session: false }), authController.logout);
 router.get("/profile", passport.authenticate("jwt", { session: false }), authController.getProfile);
 
 export default router;
