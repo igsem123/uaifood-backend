@@ -292,4 +292,63 @@ export class UserController {
                 .json({ message: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR) });
         }
     }
+
+    /**
+     * @swagger
+     * /admin/register:
+     *   post:
+     *     summary: Registra um novo usuário administrador
+     *     tags: [Users]
+     *     security:
+     *       - bearerAuth: []
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               name:
+     *                 type: string
+     *               email:
+     *                 type: string
+     *               password:
+     *                 type: string
+     *               phone:
+     *                 type: string
+     *     responses:
+     *       201:
+     *         description: Usuário administrador criado com sucesso
+     *       400:
+     *         description: Erro de validação
+     *       401:
+     *         description: Não autorizado
+     *       500:
+     *         description: Erro interno do servidor
+     */
+    registerAdminUser = async (req: Request, res: Response) => {
+        try {
+            const user = { ...req.body, type: UserType.ADMIN };
+            const newAdminUser = await this.userService.registerUser(user);
+
+            res
+                .status(StatusCodes.CREATED)
+                .json({ message: getReasonPhrase(StatusCodes.CREATED), user: newAdminUser });
+        } catch (error) {
+            console.log(error);
+
+            if(error instanceof z.ZodError) {
+                return res
+                    .status(StatusCodes.BAD_REQUEST)
+                    .json({ errors: error.issues });
+            } else if (error instanceof Error) {
+                return res
+                    .status(StatusCodes.BAD_REQUEST)
+                    .json({ message: error.message });
+            }
+            res
+                .status(StatusCodes.INTERNAL_SERVER_ERROR)
+                .json({ message: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR) });
+        }
+    }
 }

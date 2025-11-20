@@ -2,6 +2,7 @@ import {container} from "tsyringe";
 import {UserController} from "../controllers/userController";
 import {Router} from "express";
 import passport from "../auth/passport";
+import {authorizeAdmin} from "../middlewares/authorizeAdmin";
 
 const userController = container.resolve(UserController);
 const router = Router();
@@ -10,6 +11,13 @@ router.post(
     '/',
     userController.createUser
 );
+
+router.post(
+    '/admin/register',
+    passport.authenticate('jwt', { session: false }),
+    authorizeAdmin,
+    userController.registerAdminUser
+)
 
 router.get(
     '/:id',
